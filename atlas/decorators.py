@@ -6,7 +6,7 @@ def token_check(fn):
     Check if auth token is present
     """
     def _wrap(*args, **kwargs):
-        request = args[1]
+        request = args[0]
         using_service_token = False
 
         # Check if we are using the service token and therefore don't need to decrypt

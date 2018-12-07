@@ -7,6 +7,7 @@ from transactions.serializers import TransactionSerializer
 from transactions.models import Transaction
 
 import datetime
+import json
 
 
 class TransactionView(APIView):
@@ -19,8 +20,8 @@ class TransactionView(APIView):
     def get(request, using_service_token):
         if using_service_token:
             month = request.data['month']
-            transactions = Transaction.objects.get(created_date__month=month)
-            create_blob_from_json(transactions)
+            transactions = Transaction.objects.filter(created_date__month=month)
+            create_blob_from_json(json.dumps(transactions))
 
     @token_check
     def post(self, request, using_service_token):
