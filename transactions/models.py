@@ -5,7 +5,7 @@ class Transaction(models.Model):
     """
     Transaction export status
     """
-    created_date = models.DateTimeField(auto_now_add=True, db_index=True)
+    created_date = models.DateTimeField(auto_now_add=True, db_index=True, blank=False)
     scheme_provider = models.CharField(max_length=100, db_index=True)
     response = models.CharField(max_length=3000, blank=True)
     transaction_id = models.CharField(max_length=100, db_index=True, unique=True)

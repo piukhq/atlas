@@ -1,4 +1,4 @@
-"""Atlas URL Configuration
+"""atlas URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/2.1/topics/http/urls/
@@ -14,8 +14,10 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.conf.urls import include
 from django.urls import path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('transaction/', include('transactions.urls'))
 ]
