@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from transactions.storage import create_blob_from_json
 from transactions.serializers import TransactionSerializer
 from transactions.models import Transaction
+from atlas.settings import logger
 import datetime
 import json
 
@@ -19,15 +20,30 @@ class TransactionView(APIView):
     @token_check
     def get(request, using_service_token):
         if using_service_token:
-            month = request.data['month']
-            transactions = Transaction.objects.filter(created_date__month=month)
+            start = request.data['start']
+            end = request.data['end']
+            format_str = '%Y-%m-%d'
+
+            start_datetime = datetime.datetime.strptime(start, format_str)
+            end_datetime = datetime.datetime.strptime(end, format_str) + datetime.timedelta(days=1)
+
+            transactions = Transaction.objects.filter(created_date__range=(start_datetime, end_datetime))
+
+            if not transactions:
+                return Response(data='No transactions between these dates', status=400)
+
             serialized_transaction = serializers.serialize('json', transactions)
             scheme_slug = transactions.values('scheme_provider')
-            create_blob_from_json(serialized_transaction, scheme_slug=scheme_slug[0]['scheme_provider'])
+            try:
+                create_blob_from_json(serialized_transaction, scheme_slug=scheme_slug[0]['scheme_provider'])
+            except Exception as e:
+                logger.exception(e)
+
             return Response(data=json.loads(serialized_transaction), status=200)
 
+    @staticmethod
     @token_check
-    def post(self, request, using_service_token):
+    def post(request, using_service_token):
         if using_service_token:
             transaction_data = request.data
             transaction = Transaction(

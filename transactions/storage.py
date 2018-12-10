@@ -2,8 +2,8 @@ import arrow
 from azure.common import AzureException
 from azure.storage.blob.blockblobservice import BlockBlobService
 from azure.storage.blob.models import ContentSettings
-
-
+from rest_framework import status
+from atlas.settings import logger
 from atlas.settings import AZURE_ACCOUNT_NAME, AZURE_ACCOUNT_KEY, AZURE_CONTAINER, AZURE_TRANSACTION_BASE_DIRECTORY
 
 bbs = None
@@ -32,4 +32,4 @@ def create_blob_from_json(json, scheme_slug):
             create_blob_from_json(json, scheme_slug)
 
     except Exception as e:
-        print(e)
+        raise e
