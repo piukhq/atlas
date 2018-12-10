@@ -1,11 +1,11 @@
 from __future__ import unicode_literals
 from atlas.decorators import token_check
+from django.core import serializers
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from transactions.storage import create_blob_from_json
 from transactions.serializers import TransactionSerializer
 from transactions.models import Transaction
-
 import datetime
 import json
 
@@ -21,7 +21,10 @@ class TransactionView(APIView):
         if using_service_token:
             month = request.data['month']
             transactions = Transaction.objects.filter(created_date__month=month)
-            create_blob_from_json(json.dumps(transactions))
+            serialized_transaction = serializers.serialize('json', transactions)
+            scheme_slug = transactions.values('scheme_provider')
+            create_blob_from_json(serialized_transaction, scheme_slug=scheme_slug[0]['scheme_provider'])
+            return Response(data=json.loads(serialized_transaction), status=200)
 
     @token_check
     def post(self, request, using_service_token):
