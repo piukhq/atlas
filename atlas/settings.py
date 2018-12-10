@@ -11,7 +11,21 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+import logging
+import graypy
 from environment import env_var, read_env
+
+
+logging.basicConfig(format='%(process)s %(asctime)s %(levelname)s %(message)s')
+logger = logging.getLogger('bink')
+log_level = env_var("APHRODITE_LOG_LEVEL", "DEBUG")
+logger.setLevel(getattr(logging, log_level))
+
+GRAYLOG_HOST = env_var('GRAYLOG_HOST')
+if GRAYLOG_HOST:
+    GRAYLOG_PORT = int(env_var('GRAYLOG_PORT'))
+    handler = graypy.GELFHandler(GRAYLOG_HOST, GRAYLOG_PORT)
+    logger.addHandler(handler)
 
 read_env()
 

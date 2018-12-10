@@ -8,6 +8,7 @@ django = "*"
 djangorestframework = "*"
 azure-storage-blob = "*"
 arrow = "*"
+graypy = "*"
 
 [dev-packages]
 
