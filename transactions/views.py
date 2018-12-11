@@ -1,61 +1,76 @@
 from __future__ import unicode_literals
-from atlas.decorators import token_check
-from django.core import serializers
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from transactions.storage import create_blob_from_json
-from transactions.serializers import TransactionSerializer
-from transactions.models import Transaction
-from atlas.settings import logger
+
 import datetime
 import json
 
+from django.core import serializers
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-class TransactionView(APIView):
+from atlas.decorators import token_check
+from atlas.settings import logger
+from transactions.models import Transaction
+from transactions.serializers import TransactionSerializer
+from transactions.storage import create_blob_from_json
+
+
+class TransactionBlobView(APIView):
     """View to handle incoming transaction data from Aphrodite"""
     queryset = Transaction.objects.all()
     serializer_class = TransactionSerializer
 
     @staticmethod
     @token_check
-    def get(request, using_service_token):
-        if using_service_token:
-            start = request.data['start']
-            end = request.data['end']
-            format_str = '%Y-%m-%d'
+    def post(request):
 
-            start_datetime = datetime.datetime.strptime(start, format_str)
-            end_datetime = datetime.datetime.strptime(end, format_str) + datetime.timedelta(days=1)
+        start = request.data['start']
+        end = request.data['end']
 
-            transactions = Transaction.objects.filter(created_date__range=(start_datetime, end_datetime))
+        transactions = get_transactions(start, end)
 
-            if not transactions:
-                return Response(data='No transactions between these dates', status=400)
+        if not transactions:
+            return Response(data='No transactions between these dates', status=400)
 
-            serialized_transaction = serializers.serialize('json', transactions)
-            scheme_slug = transactions.values('scheme_provider')
-            try:
-                create_blob_from_json(serialized_transaction, scheme_slug=scheme_slug[0]['scheme_provider'])
-            except Exception as e:
-                logger.exception(e)
+        trans = json.loads(transactions)
 
-            return Response(data=json.loads(serialized_transaction), status=200)
+        try:
+            create_blob_from_json(transactions, scheme_slug=trans[0]['fields']['scheme_provider'])
+        except Exception as e:
+            logger.exception(e)
+            return Response(data=transactions, status=500)
+
+        return Response(data=transactions, status=200)
+
+
+class TransactionSaveView(APIView):
 
     @staticmethod
     @token_check
     def post(request, using_service_token):
         if using_service_token:
-            transaction_data = request.data
-            transaction = Transaction(
-                created_date=datetime.datetime.now(),
-                scheme_provider=transaction_data['scheme_provider'],
-                response=transaction_data['response'],
-                transaction_id=transaction_data['transaction_id'],
-                status=transaction_data['status'],
-                transaction_date=transaction_data['transaction_date'],
-                user_id=transaction_data['user_id'],
-                amount=transaction_data['amount']
-            )
-            transaction.save()
-            return Response(data='Transaction saved', status=201)
-        return Response(data='Permission Denied', status=403)
+            return save_transaction(request.data)
+
+
+def get_transactions(start_date, end_date):
+    format_str = '%Y-%m-%d'
+    start_datetime = datetime.datetime.strptime(start_date, format_str)
+    end_datetime = datetime.datetime.strptime(end_date, format_str) + datetime.timedelta(days=1)
+    transactions = Transaction.objects.filter(created_date__range=(start_datetime, end_datetime))
+    serialized_transaction = serializers.serialize('json', transactions)
+    return serialized_transaction
+
+
+def save_transaction(transaction_data):
+    transaction = Transaction(
+        created_date=datetime.datetime.now(),
+        scheme_provider=transaction_data['scheme_provider'],
+        response=transaction_data['response'],
+        transaction_id=transaction_data['transaction_id'],
+        status=transaction_data['status'],
+        transaction_date=transaction_data['transaction_date'],
+        user_id=transaction_data['user_id'],
+        amount=transaction_data['amount']
+    )
+    transaction.save()
+    return Response(data='Transaction saved', status=201)
+
