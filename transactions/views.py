@@ -60,7 +60,7 @@ def get_transactions(start_date, end_date):
     except ValueError:
         logger.exception(ValueError)
         return Response(data='Date must reflect YYYY-MM-DD format', status=400)
-    
+
     transactions = Transaction.objects.filter(created_date__range=(start_datetime, end_datetime))
     serialized_transaction = serializers.serialize('json', transactions)
     return serialized_transaction
