@@ -39,7 +39,7 @@ class TransactionBlobView(APIView):
             logger.exception(e)
             return Response(data=transactions, status=500)
 
-        return Response(data=transactions, status=200)
+        return Response(data=trans, status=200)
 
 
 class TransactionSaveView(APIView):
