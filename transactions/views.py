@@ -46,15 +46,21 @@ class TransactionSaveView(APIView):
 
     @staticmethod
     @token_check
-    def post(request, using_service_token):
-        if using_service_token:
-            return save_transaction(request.data)
+    def post(request):
+        return save_transaction(request.data)
 
 
 def get_transactions(start_date, end_date):
     format_str = '%Y-%m-%d'
-    start_datetime = datetime.datetime.strptime(start_date, format_str)
-    end_datetime = datetime.datetime.strptime(end_date, format_str) + datetime.timedelta(days=1)
+
+    try:
+        start_datetime = datetime.datetime.strptime(start_date, format_str)
+        end_datetime = datetime.datetime.strptime(end_date, format_str) + datetime.timedelta(days=1)
+
+    except ValueError:
+        logger.exception(ValueError)
+        return Response(data='Date must reflect YYYY-MM-DD format', status=400)
+    
     transactions = Transaction.objects.filter(created_date__range=(start_datetime, end_datetime))
     serialized_transaction = serializers.serialize('json', transactions)
     return serialized_transaction
