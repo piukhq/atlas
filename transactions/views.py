@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 import datetime
 import json
 
+from azure.common import AzureException
 from django.core import serializers
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -27,17 +28,18 @@ class TransactionBlobView(APIView):
         end = request.data['end']
 
         transactions = get_transactions(start, end)
-
-        if not transactions:
-            return Response(data='No transactions between these dates', status=400)
-
         trans = json.loads(transactions)
+
+        if not trans:
+            logger.info('No transactions between these dates: {}--{}'.format(start, end))
+            return Response(data='No transactions between these dates: {}--{}'.format(start, end), status=400)
 
         try:
             create_blob_from_json(transactions, scheme_slug=trans[0]['fields']['scheme_provider'])
-        except Exception as e:
-            logger.exception(e)
-            return Response(data=transactions, status=500)
+        except AzureException as e:
+            return Response(
+                data='TransactionBlobView: Error saving to blob storage - {}  ::: data = {}'.format(e, trans),
+                status=e.status_code)
 
         return Response(data=trans, status=200)
 
@@ -58,7 +60,7 @@ def get_transactions(start_date, end_date):
         end_datetime = datetime.datetime.strptime(end_date, format_str) + datetime.timedelta(days=1)
 
     except ValueError:
-        logger.exception(ValueError)
+        logger.info('Error retrieving transactions : Date must reflect YYYY-MM-DD format: {}'.format(ValueError))
         return Response(data='Date must reflect YYYY-MM-DD format', status=400)
 
     transactions = Transaction.objects.filter(created_date__range=(start_datetime, end_datetime))
@@ -79,4 +81,3 @@ def save_transaction(transaction_data):
     )
     transaction.save()
     return Response(data='Transaction saved', status=201)
-
