@@ -14,7 +14,7 @@ class TestBlobStorageEndpoint(TestCase):
 
     def setUp(self):
         self.auth_headers = {'HTTP_AUTHORIZATION': key}
-        self.data = {'start': "2018-12-09", "end": "2018-12-11"}
+        self.data = {'start': "2018-12-09", "end": datetime.datetime.now()}
         self.transaction_item = Transaction.objects.create(
             created_date=datetime.datetime.now(),
             scheme_provider='harvey-nichols',
@@ -50,8 +50,10 @@ class TestBlobStorageEndpoint(TestCase):
         result = json.loads(resp)
         self.assertEqual(len(result), 1)
 
+    @patch('transactions.storage.get_transaction')
     @patch('transactions.storage.create_blob_from_json')
-    def test_auth_decorator_passes_when_token_is_used(self, mock_blob):
+    def test_auth_decorator_passes_when_token_is_used(self, mock_blob, mock_get_transaction):
+        mock_get_transaction.return_value = 'test'
         mock_blob.return_value = 'test'
         transaction_item_one = Transaction.objects.create(
             created_date=datetime.datetime.now(),
