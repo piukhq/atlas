@@ -9,6 +9,7 @@ djangorestframework = "*"
 azure-storage-blob = "*"
 arrow = "*"
 graypy = "*"
+"psycopg2" = "*"
 
 [dev-packages]
 

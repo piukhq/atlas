@@ -95,8 +95,13 @@ WSGI_APPLICATION = 'atlas.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': env_var("ATLAS_DATABASE_NAME", "atlas"),
+        'USER': env_var("ATLAS_DATABASE_USER", "postgres"),
+        'PASSWORD': env_var("ATLAS_DATABASE_PASS"),
+        'HOST': env_var("ATLAS_DATABASE_HOST", "localhost"),
+        'PORT': env_var("ATLAS_DATABASE_PORT", "5432"),
+        'CONN_MAX_AGE': None,  # unlimited persistent connections
     }
 }
 
