@@ -1,0 +1,31 @@
+stages:
+  - tests
+  - build
+  - deploy
+
+flake8:
+  stage: tests
+  script:
+    - flake8 *
+
+build-develop:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+  script:
+    - docker build --pull -t "$CI_REGISTRY/atlas:latest" .
+    - docker push "$CI_REGISTRY/atlas:latest"
+  only:
+    - develop
+
+deploy-dev:
+  stage: deploy
+  image: binkops.azurecr.io/kubedeployer:latest
+  environment: dev
+  script:
+    - kubectl delete po -n=dev -l=project=atlas
+  only:
+    - develop
