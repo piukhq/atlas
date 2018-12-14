@@ -9,6 +9,7 @@ djangorestframework = "*"
 azure-storage-blob = "*"
 arrow = "*"
 psycopg2 = "*"
+uwsgi = "*"
 
 [dev-packages]
 flake8 = "*"
