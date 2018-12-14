@@ -18,7 +18,7 @@ from environment import env_var, read_env
 logging.basicConfig(format='%(process)s %(asctime)s %(levelname)s %(message)s')
 logger = logging.getLogger('bink')
 log_level = env_var("ATLAS_LOG_LEVEL", "DEBUG")
-logger.setLevel(getattr(logger, log_level.upper()))
+logger.setLevel(getattr(logging, log_level.upper()))
 
 read_env()
 
