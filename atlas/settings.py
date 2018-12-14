@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 
 import os
 import logging
-import graypy
 from environment import env_var, read_env
 
 
