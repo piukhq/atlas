@@ -3,7 +3,6 @@ import json
 from unittest.mock import patch
 
 from django.test import TestCase
-from django.core import serializers
 from rest_framework.response import Response
 
 from atlas.settings import ATLAS_SERVICE_AUTH_HEADER as key
