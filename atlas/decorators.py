@@ -1,3 +1,5 @@
+from rest_framework.exceptions import AuthenticationFailed
+
 from atlas import settings
 
 
@@ -7,14 +9,13 @@ def token_check(fn):
     """
     def _wrap(*args, **kwargs):
         request = args[0]
-        using_service_token = False
 
         # Check if we are using the service token and therefore don't need to decrypt
 
         auth_token = request.META.get('HTTP_AUTHORIZATION')
         if auth_token and auth_token == settings.ATLAS_SERVICE_AUTH_HEADER:
-            using_service_token = True
+            return fn(*args, **kwargs)
 
-        return fn(using_service_token=using_service_token, *args, **kwargs)
+        raise AuthenticationFailed
 
     return _wrap
