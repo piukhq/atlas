@@ -8,6 +8,8 @@ django = "*"
 djangorestframework = "*"
 azure-storage-blob = "*"
 arrow = "*"
+"psycopg2" = "*"
+"flake8" = "*"
 
 [dev-packages]
 
