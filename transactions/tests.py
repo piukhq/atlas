@@ -3,6 +3,7 @@ import json
 from unittest.mock import patch
 
 from django.test import TestCase
+from django.core import serializers
 from rest_framework.response import Response
 
 from atlas.settings import ATLAS_SERVICE_AUTH_HEADER as key
@@ -25,6 +26,7 @@ class TestBlobStorageEndpoint(TestCase):
             user_id='1234',
             amount=12.0
         )
+        self.transaction_item.refresh_from_db()
 
     def test_empty_list_returned_if_no_transaction_between_dates(self):
 
@@ -49,26 +51,6 @@ class TestBlobStorageEndpoint(TestCase):
         resp = get_transactions("2018-12-10", str(datetime.date.today()))
         result = json.loads(resp)
         self.assertEqual(len(result), 1)
-
-    @patch('transactions.storage.get_transaction')
-    @patch('transactions.storage.create_blob_from_json')
-    def test_auth_decorator_passes_when_token_is_used(self, mock_blob, mock_get_transaction):
-        mock_get_transaction.return_value = 'test'
-        mock_blob.return_value = 'test'
-        transaction_item_one = Transaction.objects.create(
-            created_date=datetime.datetime.now(),
-            scheme_provider='harvey-nichols',
-            status='SUCCESS',
-            transaction_id='5',
-            response='{key: value}',
-            transaction_date=datetime.datetime.now(),
-            user_id='1234',
-            amount=12.0
-        )
-        transaction_item_one.save()
-
-        resp = self.client.post('/transaction/blob', self.data, **self.auth_headers)
-        self.assertEqual(resp.status_code, 200)
 
     def test_auth_decorator_raises_exception_when_not_used(self):
 
