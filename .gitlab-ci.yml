@@ -26,6 +26,8 @@ deploy-dev:
   image: binkops.azurecr.io/kubedeployer:latest
   environment: dev
   script:
+    - bash collectstatic.sh
+    - ENVIRONMENT=dev deploystatic
     - kubectl delete po -n=dev -l=project=atlas
   only:
     - develop
