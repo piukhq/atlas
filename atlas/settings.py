@@ -35,7 +35,14 @@ SECRET_KEY = 'k@k3(kx+bdm25skdw^&d88+2(5cg@54r6$kqbjyiycsub)-g#('
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '0.0.0.0',
+    '127.0.0.1',
+    'atlas',
+    '.bink-dev.com',
+    '.bink-staging.com',
+    '.bink.com',
+]
 
 
 # Application definition
