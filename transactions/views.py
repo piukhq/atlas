@@ -5,7 +5,6 @@ import json
 
 from azure.common import AzureException
 from django.core import serializers
-from django.db import IntegrityError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -18,8 +17,6 @@ from transactions.storage import create_blob_from_json
 
 class TransactionBlobView(APIView):
     """View to query Transaction database and save result to blob storage"""
-    queryset = Transaction.objects.all()
-    serializer_class = TransactionSerializer
 
     @staticmethod
     @token_check
@@ -51,12 +48,12 @@ class TransactionBlobView(APIView):
                 data='Error saving to blob storage - {} data - {}'.format(e, trans),
                 status=e.status_code)
 
-        except ValueError as e:
+        except Exception as e:
             logger.exception(
-                'TransactionBlobView: Error saving to Blob storage - {} data - {}'.format(e.args[0], trans))
+                'TransactionBlobView POST: Error saving to Blob storage - {} data - {}'.format(e, trans))
             return Response(
                 data='Error saving to blob storage - {} data - {}'.format(e.args[0], trans),
-                status=520)
+                status=500)
 
         return Response(data=trans, status=200)
 
@@ -67,13 +64,13 @@ class TransactionSaveView(APIView):
     @staticmethod
     @token_check
     def post(request):
-        try:
-            transaction = save_transaction(request.data)
-            return transaction
+        transaction_serializer = TransactionSerializer(data=request.data)
 
-        except (IntegrityError, KeyError, Exception) as e:
-            logger.exception('Error saving transaction: {}'.format(e.args[0]))
-            return Response(data="Transaction not saved: {}".format(e.args[0]), status=400)
+        if transaction_serializer.is_valid():
+            transaction_serializer.save()
+            return Response(data='Transaction saved: {}'.format(transaction_serializer), status=201)
+        logger.warning('TransactionSaveView: Transaction NOT saved {}'.format(transaction_serializer.errors))
+        return Response(data='Transaction NOT saved: {}'.format(transaction_serializer.errors), status=400)
 
 
 def get_transactions(start_date, end_date):
@@ -85,18 +82,3 @@ def get_transactions(start_date, end_date):
     transactions = Transaction.objects.filter(created_date__range=(start_datetime, end_datetime))
     serialized_transaction = serializers.serialize('json', transactions)
     return serialized_transaction
-
-
-def save_transaction(transaction_data):
-    transaction = Transaction(
-        created_date=datetime.datetime.now(),
-        scheme_provider=transaction_data['scheme_provider'],
-        response=transaction_data['response'],
-        transaction_id=transaction_data['transaction_id'],
-        status=transaction_data['status'],
-        transaction_date=transaction_data['transaction_date'],
-        user_id=transaction_data['user_id'],
-        amount=transaction_data['amount']
-    )
-    transaction.save()
-    return Response(data='Transaction saved: {}'.format(transaction), status=201)
