@@ -68,7 +68,7 @@ class TransactionSaveView(APIView):
 
         if transaction_serializer.is_valid():
             transaction_serializer.save()
-            return Response(data='Transaction saved: {}'.format(transaction_serializer), status=201)
+            return Response(data='Transaction saved: {}'.format(transaction_serializer.data), status=201)
         logger.warning('TransactionSaveView: Transaction NOT saved {}'.format(transaction_serializer.errors))
         return Response(data='Transaction NOT saved: {}'.format(transaction_serializer.errors), status=400)
 
