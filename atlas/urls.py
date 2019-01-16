@@ -19,5 +19,6 @@ from django.urls import path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('transaction/', include('transactions.urls'))
+    path('transaction/', include('transactions.urls')),
+    path('ubiquity_user/', include('ubiquity_users.urls'))
 ]
