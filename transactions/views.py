@@ -12,7 +12,7 @@ from atlas.decorators import token_check
 from atlas.settings import logger
 from transactions.models import Transaction
 from transactions.serializers import TransactionSerializer
-from transactions.storage import create_blob_from_json
+from atlas.storage import create_blob_from_json
 
 
 class TransactionBlobView(APIView):
@@ -40,7 +40,10 @@ class TransactionBlobView(APIView):
             return Response(data='No transactions between these dates: {}--{}'.format(start, end), status=204)
 
         try:
-            create_blob_from_json(transactions, scheme_slug=trans[0]['fields']['scheme_provider'])
+            create_blob_from_json(transactions,
+                                  file_name=trans[0]['fields']['scheme_provider'],
+                                  base_directory='directory',
+                                  container='scheme')
 
         except AzureException as e:
             logger.exception('TransactionBlobView: Error saving to Blob storage - {} data - {}'.format(e, trans))
