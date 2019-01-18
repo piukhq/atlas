@@ -3,13 +3,13 @@ from azure.common import AzureException
 from azure.storage.blob.blockblobservice import BlockBlobService
 from azure.storage.blob.models import ContentSettings
 from rest_framework.response import Response
-from atlas.settings import AZURE_ACCOUNT_NAME, AZURE_ACCOUNT_KEY, AZURE_CONTAINER, AZURE_TRANSACTION_BASE_DIRECTORY,\
-    logger
+
+from atlas.settings import AZURE_ACCOUNT_NAME, AZURE_ACCOUNT_KEY, logger
 
 bbs = None
 
 
-def create_blob_from_json(json, file_name, base_directory, container):
+def create_blob_from_csv(csv, file_name=None, base_directory=None, container=None):
     global bbs
 
     if bbs is None:
@@ -17,21 +17,22 @@ def create_blob_from_json(json, file_name, base_directory, container):
             account_name=AZURE_ACCOUNT_NAME,
             account_key=AZURE_ACCOUNT_KEY)
 
-    date = arrow.utcnow().format('YYYY-MM-DDTHH:mm:ss.SSSSS')
+    # Change to unix timestamp
+    date = arrow.utcnow().timestamp
     filename = '{}-{}'.format(file_name, date)
     try:
         bbs.create_blob_from_text(
             container_name=container,
-            blob_name='{0}/{1}/{2}.json'.format(base_directory, file_name, filename),
-            content_settings=ContentSettings(content_type='application/json'),
-            text=json)
+            blob_name='{0}/{1}/{2}.csv'.format(base_directory, file_name, filename),
+            content_settings=ContentSettings(content_type='application/CSV'),
+            text=csv)
 
     except AzureException as e:
         if e.error_code == 'ContainerNotFound':
             bbs.create_container(container)
-            create_blob_from_json(json, file_name)
+            create_blob_from_csv(csv, file_name)
         else:
             logger.error('Azure Exception when saving to blob storage: {}'.format(e))
             raise e
 
-    return Response(data=json, status=200)
+    return Response(data=csv, status=200)

@@ -10,10 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
-import os
 import logging
-from environment import env_var, read_env
+import os
 
+from environment import env_var, read_env
 
 logging.basicConfig(format='%(process)s %(asctime)s %(levelname)s %(message)s')
 logger = logging.getLogger('bink')
