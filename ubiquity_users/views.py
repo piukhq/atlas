@@ -34,14 +34,11 @@ class UserBlobView(APIView):
     def get(request):
 
         time_24_hours_ago = datetime.now() - timedelta(days=1)
+
         users = User.objects.filter(time_added_to_database__gte=time_24_hours_ago, delete=False)
         users_json = serializers.serialize('json', users)
         user_dicts = json.loads(users_json)
-
-        user_list_of_dicts = []
-
-        for d in user_dicts:
-            user_list_of_dicts.append(d['fields'])
+        user_list_of_dicts = [d['fields'] for d in user_dicts]
 
         list_for_csv = [
             {k: v for k, v in d.items() if k == 'email' or k == 'opt_out_timestamp'} for d in user_list_of_dicts
@@ -51,7 +48,7 @@ class UserBlobView(APIView):
 
         try:
             create_blob_from_csv(deleted_users_csv, file_name='consents', base_directory='barclays',
-                                  container='deleted-users-test')
+                                 container='deleted-users-test')
         except AzureException as e:
             logger.exception(
                 'UserBlobView: Error saving to Blob storage - {} data - {}'.format(e, users_json))

@@ -2,12 +2,12 @@ import io
 import csv
 
 
-def write_to_csv(dict_for_csv):
+def write_to_csv(list_for_csv):
     csv_file = io.StringIO()
-    fieldnames = ['email', 'opt_out_timestamp']
 
+    fieldnames = list_for_csv[0].keys()
     writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
 
     writer.writeheader()
-    writer.writerows(dict_for_csv)
+    writer.writerows(list_for_csv)
     return csv_file.getvalue()
