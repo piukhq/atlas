@@ -1,5 +1,3 @@
-import csv
-import io
 import json
 from datetime import datetime, timedelta
 
@@ -11,6 +9,7 @@ from rest_framework.views import APIView
 
 from atlas.settings import logger
 from atlas.storage import create_blob_from_csv
+from atlas.csv_writer import write_to_csv
 from ubiquity_users.models import User
 from ubiquity_users.serializers import UserSerializer
 
@@ -65,15 +64,3 @@ class UserBlobView(APIView):
             user.save()
 
         return HttpResponse(users_json, content_type='application/json')
-
-
-def write_to_csv(dict_for_csv):
-    csv_file = io.StringIO()
-    fieldnames = ['email', 'opt_out_timestamp']
-
-    writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
-
-    writer.writeheader()
-    writer.writerows(dict_for_csv)
-
-    return csv_file.getvalue()
