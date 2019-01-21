@@ -7,6 +7,7 @@ from django.http import HttpResponse
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from atlas.decorators import token_check
 from atlas.settings import logger
 from atlas.storage import create_blob_from_csv
 from atlas.csv_writer import write_to_csv
@@ -19,6 +20,7 @@ class UserSaveView(APIView):
     View that saves user data to database
     """
     @staticmethod
+    @token_check
     def post(request):
         user_serializer = UserSerializer(data=request.data)
 
@@ -31,6 +33,7 @@ class UserSaveView(APIView):
 class UserBlobView(APIView):
 
     @staticmethod
+    @token_check
     def get(request):
 
         time_24_hours_ago = datetime.now() - timedelta(days=1)
