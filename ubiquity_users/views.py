@@ -4,16 +4,16 @@ from datetime import datetime, timedelta
 from azure.common import AzureException
 from django.core import serializers
 from django.http import HttpResponse
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from atlas.csv_writer import write_to_csv
 from atlas.decorators import token_check
 from atlas.settings import logger
 from atlas.storage import create_blob_from_csv
-from atlas.csv_writer import write_to_csv
 from ubiquity_users.models import User
 from ubiquity_users.serializers import UserSerializer
-from rest_framework import status
 
 
 class UserSaveView(APIView):

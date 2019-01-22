@@ -1,5 +1,5 @@
-import io
 import csv
+import io
 
 
 def write_to_csv(list_for_csv):

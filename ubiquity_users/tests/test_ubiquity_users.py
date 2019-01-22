@@ -1,11 +1,12 @@
+import datetime
+from unittest.mock import patch
+
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
-from unittest.mock import patch
+
 from atlas.settings import ATLAS_SERVICE_AUTH_HEADER
 from ubiquity_users.models import User
-import datetime
-from azure.common import AzureException
 
 
 class TestUserSave(APITestCase):
