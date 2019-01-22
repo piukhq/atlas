@@ -13,6 +13,7 @@ from atlas.storage import create_blob_from_csv
 from atlas.csv_writer import write_to_csv
 from ubiquity_users.models import User
 from ubiquity_users.serializers import UserSerializer
+from rest_framework import status
 
 
 class UserSaveView(APIView):
@@ -26,8 +27,8 @@ class UserSaveView(APIView):
 
         if user_serializer.is_valid():
             user_serializer.save()
-            return Response(data='User saved: {}'.format(user_serializer.data), status=201)
-        return Response(data='User NOT saved: {}'.format(user_serializer.data), status=400)
+            return Response(data='User saved: {}'.format(user_serializer.data), status=status.HTTP_201_CREATED)
+        return Response(data='User NOT saved: {}'.format(user_serializer.data), status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserBlobView(APIView):
@@ -52,12 +53,12 @@ class UserBlobView(APIView):
         try:
             create_blob_from_csv(deleted_users_csv, file_name='consents', base_directory='barclays',
                                  container='deleted-users-test')
-        except AzureException as e:
+        except (AzureException, ValueError) as e:
             logger.exception(
                 'UserBlobView: Error saving to Blob storage - {} data - {}'.format(e, users_json))
             return Response(
                 data='Error saving to blob storage - {} data - {}'.format(e, users_json),
-                status=e.status_code)
+                status=status.HTTP_400_BAD_REQUEST)
 
         for user in users:
             user.delete = True
