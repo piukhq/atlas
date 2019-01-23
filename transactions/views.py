@@ -10,9 +10,9 @@ from rest_framework.views import APIView
 
 from atlas.decorators import token_check
 from atlas.settings import logger
+from atlas.storage import create_blob_from_csv
 from transactions.models import Transaction
 from transactions.serializers import TransactionSerializer
-from transactions.storage import create_blob_from_json
 
 
 class TransactionBlobView(APIView):
@@ -39,8 +39,12 @@ class TransactionBlobView(APIView):
             logger.info('TransactionBlobView: No transactions between these dates: {}--{}'.format(start, end))
             return Response(data='No transactions between these dates: {}--{}'.format(start, end), status=204)
 
+        # TODO change base directory to variable 'merchant' and pass in merchant name
         try:
-            create_blob_from_json(transactions, scheme_slug=trans[0]['fields']['scheme_provider'])
+            create_blob_from_csv(transactions,
+                                 file_name=trans[0]['fields']['scheme_provider'],
+                                 base_directory='schemes',
+                                 container='transaction-reports-test')
 
         except AzureException as e:
             logger.exception('TransactionBlobView: Error saving to Blob storage - {} data - {}'.format(e, trans))

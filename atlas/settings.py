@@ -10,10 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
-import os
 import logging
-from environment import env_var, read_env
+import os
 
+from environment import env_var, read_env
 
 logging.basicConfig(format='%(process)s %(asctime)s %(levelname)s %(message)s')
 logger = logging.getLogger('bink')
@@ -36,6 +36,7 @@ SECRET_KEY = 'k@k3(kx+bdm25skdw^&d88+2(5cg@54r6$kqbjyiycsub)-g#('
 DEBUG = True
 
 ALLOWED_HOSTS = [
+    'localhost',
     '0.0.0.0',
     '127.0.0.1',
     'atlas',
@@ -56,6 +57,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'transactions',
+    'ubiquity_users',
 ]
 
 MIDDLEWARE = [
@@ -151,6 +153,8 @@ AZURE_CONTAINER = env_var('AZURE_CONTAINER')
 AZURE_TRANSACTION_BASE_DIRECTORY = env_var('AZURE_TRANSACTION_BASE_DIRECTORY', 'scheme')
 AZURE_CUSTOM_DOMAIN = env_var('AZURE_CUSTOM_DOMAIN')
 DEFAULT_FILE_STORAGE = 'storages.backends.azure_storage.AzureStorage'
+
+DELETED_UBIQUITY_USERS_CONTAINER = env_var('DELETED_UBIQUITY_USERS_CONTAINER')
 
 ATLAS_SERVICE_API_KEY = 'F326FD4790FBE2D74418AF059FD3J'
 ATLAS_SERVICE_AUTH_HEADER = 'Token {}'.format(ATLAS_SERVICE_API_KEY)
