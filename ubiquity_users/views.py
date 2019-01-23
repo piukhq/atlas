@@ -64,4 +64,4 @@ class UserBlobView(APIView):
             user.delete = True
             user.save()
 
-        return HttpResponse(users_json, content_type='application/json')
+        return Response(data=users_json, content_type='application/json')

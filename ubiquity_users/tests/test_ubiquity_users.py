@@ -1,6 +1,7 @@
 import datetime
 from unittest.mock import patch
 
+from azure.common import AzureException
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
@@ -108,3 +109,17 @@ class TestUbiquityBlobView(APITestCase):
         self.assertFalse(user_object_before_call.delete)
         self.assertTrue(user_object_after_call.delete)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    @patch('ubiquity_users.views.write_to_csv')
+    @patch('ubiquity_users.views.create_blob_from_csv')
+    def test_response_returns_json(self, mock_create_blob, mock_write_to_csv):
+        mock_write_to_csv.return_value = 'email,opt_out_timestamp,ct@bink.com,{}'.format(
+            self.user_data.opt_out_timestamp)
+
+        self.user_data.save()
+
+        self.client.credentials(HTTP_AUTHORIZATION=self.auth_headers)
+        resp = self.client.get(self.url)
+
+        self.assertTrue(type(resp.data) is str)
+        self.assertEqual(resp.content_type, 'application/json')
