@@ -17,7 +17,6 @@ def create_blob_from_csv(csv, file_name=None, base_directory=None, container=Non
             account_name=AZURE_ACCOUNT_NAME,
             account_key=AZURE_ACCOUNT_KEY)
 
-    # Change to unix timestamp
     date = arrow.utcnow().timestamp
     filename = '{}-{}'.format(file_name, date)
     try:

@@ -64,7 +64,7 @@ class TestUbiquityBlobView(APITestCase):
         self.url = reverse('storage')
         self.user_data = User.objects.create(
             time_added_to_database=datetime.datetime.now(),
-            email='ctoal@test.com',
+            email='test@test.com',
             opt_out_timestamp=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             delete='False'
         )
@@ -89,18 +89,18 @@ class TestUbiquityBlobView(APITestCase):
     @patch('ubiquity_users.views.write_to_csv')
     @patch('ubiquity_users.views.create_blob_from_csv')
     def test_delete_is_set_to_true_after_save_to_blob(self, mock_create_blob, mock_write_to_csv):
-        mock_write_to_csv.return_value = 'email,opt_out_timestamp,ct@bink.com,{}'.format(
+        mock_write_to_csv.return_value = 'email,opt_out_timestamp,test@test.com,{}'.format(
             self.user_data.opt_out_timestamp)
 
         self.user_data.save()
-        user_object_before_call = User.objects.get(email='ctoal@test.com')
+        user_object_before_call = User.objects.get(email='test@test.com')
 
         self.client.credentials(HTTP_AUTHORIZATION=self.auth_headers)
         resp = self.client.get(self.url)
 
-        user_object_after_call = User.objects.get(email='ctoal@test.com')
+        user_object_after_call = User.objects.get(email='test@test.com')
         mock_create_blob.assert_called_with(
-            'email,opt_out_timestamp,ct@bink.com,{}'.format(user_object_before_call.opt_out_timestamp),
+            'email,opt_out_timestamp,test@test.com,{}'.format(user_object_before_call.opt_out_timestamp),
             file_name='consents',
             base_directory='barclays',
             container='deleted-users-test')
@@ -112,13 +112,12 @@ class TestUbiquityBlobView(APITestCase):
     @patch('ubiquity_users.views.write_to_csv')
     @patch('ubiquity_users.views.create_blob_from_csv')
     def test_response_returns_json(self, mock_create_blob, mock_write_to_csv):
-        mock_write_to_csv.return_value = 'email,opt_out_timestamp,ct@bink.com,{}'.format(
+        mock_write_to_csv.return_value = 'email,opt_out_timestamp,test@test.com,{}'.format(
             self.user_data.opt_out_timestamp)
 
         self.user_data.save()
-
         self.client.credentials(HTTP_AUTHORIZATION=self.auth_headers)
         resp = self.client.get(self.url)
 
-        self.assertTrue(type(resp.data) is str)
-        self.assertEqual(resp.content_type, 'application/json')
+        self.assertTrue(type(resp.data) is list)
+        self.assertEqual(resp.data[0]['email'], 'test@test.com')
