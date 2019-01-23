@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 
 from atlas.csv_writer import write_to_csv
 from atlas.decorators import token_check
-from atlas.settings import logger, DELETED_UBIQUITY_USERS
+from atlas.settings import logger, DELETED_UBIQUITY_USERS_CONTAINER
 from atlas.storage import create_blob_from_csv
 from ubiquity_users.models import User
 from ubiquity_users.serializers import UserSerializer
@@ -54,7 +54,7 @@ class UserBlobView(APIView):
 
         try:
             create_blob_from_csv(deleted_users_csv, file_name='consents', base_directory='barclays',
-                                 container=DELETED_UBIQUITY_USERS)
+                                 container=DELETED_UBIQUITY_USERS_CONTAINER)
         except (AzureException, ValueError) as e:
             logger.exception(
                 'UserBlobView: Error saving to Blob storage - {} data - {}'.format(e, users))
