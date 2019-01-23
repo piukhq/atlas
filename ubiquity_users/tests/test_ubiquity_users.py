@@ -1,7 +1,6 @@
 import datetime
 from unittest.mock import patch
 
-from azure.common import AzureException
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase, APIClient

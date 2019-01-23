@@ -3,7 +3,6 @@ from datetime import datetime, timedelta
 
 from azure.common import AzureException
 from django.core import serializers
-from django.http import HttpResponse
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView

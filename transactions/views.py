@@ -42,9 +42,9 @@ class TransactionBlobView(APIView):
         # TODO change base directory to variable 'merchant' and pass in merchant name
         try:
             create_blob_from_csv(transactions,
-                                  file_name=trans[0]['fields']['scheme_provider'],
-                                  base_directory='schemes',
-                                  container='transaction-reports-test')
+                                 file_name=trans[0]['fields']['scheme_provider'],
+                                 base_directory='schemes',
+                                 container='transaction-reports-test')
 
         except AzureException as e:
             logger.exception('TransactionBlobView: Error saving to Blob storage - {} data - {}'.format(e, trans))
