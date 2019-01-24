@@ -1,15 +1,11 @@
 import datetime
-import json
-
-from azure.common import AzureException
-from rest_framework import status
-from unittest.mock import patch
 from unittest import mock
+from unittest.mock import patch
 
 from django.test import TestCase
 from django.urls import reverse
-from rest_framework.test import APITestCase, APIClient
-from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.test import APITestCase
 
 from atlas.settings import ATLAS_SERVICE_AUTH_HEADER
 from transactions.models import Transaction
