@@ -5,7 +5,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
 
-from atlas.settings import ATLAS_SERVICE_AUTH_HEADER
+from atlas.settings import ATLAS_SERVICE_AUTH_HEADER, DELETED_UBIQUITY_USERS_CONTAINER
 from ubiquity_users.models import User
 
 
@@ -36,7 +36,7 @@ class TestUserSave(APITestCase):
         self.assertEqual(User.objects.count(), 1)
         self.assertEqual(User.objects.get().email, 'ct@test.com')
 
-    def test_invalid_payload_returns_404(self):
+    def test_invalid_payload_returns_400(self):
 
         self.client.credentials(HTTP_AUTHORIZATION=self.auth_headers)
         resp = self.client.post(self.url, self.invalid_data, format='json')
@@ -103,7 +103,7 @@ class TestUbiquityBlobView(APITestCase):
             'email,opt_out_timestamp,test@test.com,{}'.format(user_object_before_call.opt_out_timestamp),
             file_name='consents',
             base_directory='barclays',
-            container='deleted-users-test')
+            container=DELETED_UBIQUITY_USERS_CONTAINER)
 
         self.assertFalse(user_object_before_call.delete)
         self.assertTrue(user_object_after_call.delete)
