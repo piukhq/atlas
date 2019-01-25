@@ -33,7 +33,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'k@k3(kx+bdm25skdw^&d88+2(5cg@54r6$kqbjyiycsub)-g#('
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env_var("ATLAS_DEBUG", False)
 
 ALLOWED_HOSTS = [
     'localhost',
