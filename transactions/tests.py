@@ -34,12 +34,9 @@ class TestBlobStorageEndpoint(TestCase):
         self.assertEqual(result, [])
 
     def test_dates_wrong_format(self):
-
         self.transaction_item.save()
-
-        resp = get_transactions("07-12-2018", "08-12-2018")
-        self.assertRaises(ValueError)
-        self.assertEqual(resp.status_code, 400)
+        with self.assertRaises(ValueError):
+            get_transactions("07-12-2018", "08-12-2018")
 
     def test_transaction_returned_between_dates(self):
 
