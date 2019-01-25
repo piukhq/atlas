@@ -100,7 +100,7 @@ DATABASES = {
         'NAME': env_var("ATLAS_DATABASE_NAME", "atlas"),
         'USER': env_var("ATLAS_DATABASE_USER", "postgres"),
         'PASSWORD': env_var("ATLAS_DATABASE_PASS"),
-        'HOST': env_var("ATLAS_DATABASE_HOST", "localhost"),
+        'HOST': env_var("ATLAS_DATABASE_HOST", "postgres"),
         'PORT': env_var("ATLAS_DATABASE_PORT", "5432"),
         'CONN_MAX_AGE': None,  # unlimited persistent connections
     }
