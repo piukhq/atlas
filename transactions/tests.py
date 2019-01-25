@@ -1,13 +1,11 @@
 import datetime
 import json
-from unittest.mock import patch
 
 from django.test import TestCase
-from rest_framework.response import Response
 
 from atlas.settings import ATLAS_SERVICE_AUTH_HEADER as key
 from transactions.models import Transaction
-from transactions.views import get_transactions, save_transaction
+from transactions.views import get_transactions
 
 
 class TestBlobStorageEndpoint(TestCase):
@@ -66,23 +64,22 @@ class TestSaveEndpoint(TestCase):
         self.payload = {
             'scheme_provider': 'harvey-nichols',
             'status': 'SUCCESS',
-            'transaction_id': '12',
+            'transaction_id': 'test_id',
             'response': '{key: value}',
             'transaction_date': datetime.datetime.now(),
             'user_id': '11111',
             'amount': 12.0
         }
 
-    def test_create_valid_transaction(self):
-        resp = save_transaction(self.payload)
+    def test_save_transaction(self):
+        transaction = Transaction.objects.filter(transaction_id='test_id')
+        self.assertFalse(transaction)
+
+        resp = self.client.post('/transaction/save', self.payload, **self.auth_headers)
         self.assertEqual(resp.status_code, 201)
 
-    @patch('transactions.views.save_transaction')
-    def test_auth_decorator_passes_when_token_is_used(self, mock_save):
-        mock_save.return_value = Response(data='Transaction saved', status=201)
-        resp = self.client.post('/transaction/save', self.payload, **self.auth_headers)
-        self.assertTrue(mock_save.called)
-        self.assertEqual(resp.status_code, 201)
+        new_transaction = Transaction.objects.get(transaction_id='test_id')
+        self.assertEqual(new_transaction.status, 'SUCCESS')
 
     def test_auth_decorator_fails_when_token_is_not_used(self):
         resp = self.client.post('/transaction/save', self.payload)
