@@ -94,12 +94,8 @@ class TransactionSaveView(APIView):
 
 def get_transactions(start_date, end_date, slug):
     format_str = '%Y-%m-%d'
-
-    try:
-        start_datetime = datetime.datetime.strptime(start_date, format_str)
-        end_datetime = datetime.datetime.strptime(end_date, format_str) + datetime.timedelta(days=1)
-    except ValueError:
-        raise ValueError
+    start_datetime = datetime.datetime.strptime(start_date, format_str)
+    end_datetime = datetime.datetime.strptime(end_date, format_str) + datetime.timedelta(days=1)
 
     transactions = Transaction.objects.filter(created_date__range=(start_datetime, end_datetime), scheme_provider=slug)
     list_for_csv = list()
