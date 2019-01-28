@@ -17,8 +17,11 @@ from django.conf.urls import include
 from django.contrib import admin
 from django.urls import path
 
+from ubiquity_users.views import HealthCheck
+
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('transaction/', include('transactions.urls')),
-    path('ubiquity_user/', include('ubiquity_users.urls'))
+    path('audit/admin/', admin.site.urls),
+    path('audit/transaction/', include('transactions.urls')),
+    path('audit/ubiquity_user/', include('ubiquity_users.urls')),
+    path('healthz/', HealthCheck.as_view()),
 ]
