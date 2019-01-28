@@ -10,8 +10,15 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
+import logging
 import os
+
 from environment import env_var, read_env
+
+logging.basicConfig(format='%(process)s %(asctime)s %(levelname)s %(message)s')
+logger = logging.getLogger('bink')
+log_level = env_var("ATLAS_LOG_LEVEL", "DEBUG")
+logger.setLevel(getattr(logging, log_level.upper()))
 
 read_env()
 
@@ -26,9 +33,17 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'k@k3(kx+bdm25skdw^&d88+2(5cg@54r6$kqbjyiycsub)-g#('
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env_var("ATLAS_DEBUG", False)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    '0.0.0.0',
+    '127.0.0.1',
+    'atlas',
+    '.bink-dev.com',
+    '.bink-staging.com',
+    '.bink.com',
+]
 
 
 # Application definition
@@ -42,6 +57,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'transactions',
+    'ubiquity_users',
 ]
 
 MIDDLEWARE = [
@@ -59,8 +75,7 @@ ROOT_URLCONF = 'atlas.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')]
-        ,
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -81,8 +96,13 @@ WSGI_APPLICATION = 'atlas.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': env_var("ATLAS_DATABASE_NAME", "atlas"),
+        'USER': env_var("ATLAS_DATABASE_USER", "postgres"),
+        'PASSWORD': env_var("ATLAS_DATABASE_PASS"),
+        'HOST': env_var("ATLAS_DATABASE_HOST", "postgres"),
+        'PORT': env_var("ATLAS_DATABASE_PORT", "5432"),
+        'CONN_MAX_AGE': None,  # unlimited persistent connections
     }
 }
 
@@ -123,7 +143,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+STATIC_URL = env_var('STATIC_URL', '/static/')
 
 
 AZURE_ACCOUNT_NAME = env_var('AZURE_ACCOUNT_NAME')
@@ -132,6 +153,9 @@ AZURE_CONTAINER = env_var('AZURE_CONTAINER')
 AZURE_TRANSACTION_BASE_DIRECTORY = env_var('AZURE_TRANSACTION_BASE_DIRECTORY', 'scheme')
 AZURE_CUSTOM_DOMAIN = env_var('AZURE_CUSTOM_DOMAIN')
 DEFAULT_FILE_STORAGE = 'storages.backends.azure_storage.AzureStorage'
+
+DELETED_UBIQUITY_USERS_CONTAINER = env_var('DELETED_UBIQUITY_USERS_CONTAINER')
+TRANSACTION_REPORTS_CONTAINER = env_var('TRANSACTION_REPORTS_CONTAINER')
 
 ATLAS_SERVICE_API_KEY = 'F326FD4790FBE2D74418AF059FD3J'
 ATLAS_SERVICE_AUTH_HEADER = 'Token {}'.format(ATLAS_SERVICE_API_KEY)

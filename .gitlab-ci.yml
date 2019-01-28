@@ -1,0 +1,86 @@
+stages:
+  - tests
+  - build
+  - deploy
+
+tests:
+  stage: tests
+  script:
+    - pipenv install --dev --system --deploy
+    - export HERMES_DATABASE_URL="postgres://postgres@${POSTGRES_PORT_5432_TCP_ADDR}:5432${POSTGRES_NAME}"
+    - coverage run --source='.' manage.py test -v 2
+    - coverage report
+  services:
+    - postgres:9.4.4
+
+complexity:
+  stage: tests
+  script:
+    - xenon --max-average A --max-modules B --max-absolute B .
+
+flake8:
+  stage: tests
+  script:
+    - flake8 *
+
+build-develop:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+  script:
+    - docker build --pull -t "$CI_REGISTRY/atlas:latest" .
+    - docker push "$CI_REGISTRY/atlas:latest"
+  only:
+    - develop
+
+build-master:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+  script:
+    - docker build --pull -t "$CI_REGISTRY/atlas:$CI_COMMIT_TAG" .
+    - docker push "$CI_REGISTRY/atlas:$CI_COMMIT_TAG"
+  only:
+    - tags
+
+deploy-dev:
+  stage: deploy
+  image: binkops.azurecr.io/kubedeployer:latest
+  environment: dev
+  script:
+    - bash collectstatic.sh
+    - ENVIRONMENT=dev deploystatic
+    - kubectl delete po -n=dev -l=project=atlas
+  only:
+    - develop
+
+deploy-staging:
+  stage: deploy
+  image: binkops.azurecr.io/kubedeployer:latest
+  environment: staging
+  script:
+    - bash collectstatic.sh
+    - ENVIRONMENT=staging deploystatic
+    - 'kubectl patch -n=staging deployment/atlas --patch "{\"spec\": {\"template\": {\"spec\": {\"initContainers\": [{\"name\": \"migrate\",\"image\": \"olympus.azurecr.io/atlas:$CI_COMMIT_TAG\"}]}}}}"'
+    - kubectl set image -n=staging deployment/atlas atlas=olympus.azurecr.io/atlas:$CI_COMMIT_TAG
+  only:
+    - tags
+
+deploy-prod:
+  stage: deploy
+  image: binkops.azurecr.io/kubedeployer:latest
+  environment: prod
+  script:
+    - bash collectstatic.sh
+    - ENVIRONMENT=prod deploystatic
+    - 'kubectl patch -n=production deployment/atlas --patch "{\"spec\": {\"template\": {\"spec\": {\"initContainers\": [{\"name\": \"migrate\",\"image\": \"olympus.azurecr.io/atlas:$CI_COMMIT_TAG\"}]}}}}"'
+    - kubectl set image -n=production deployment/atlas atlas=olympus.azurecr.io/atlas:$CI_COMMIT_TAG
+  when: manual
+  only:
+    - tags

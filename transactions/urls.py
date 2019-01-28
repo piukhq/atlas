@@ -1,6 +1,8 @@
 from django.urls import path
+
 from transactions import views
 
 urlpatterns = [
-    path('audit', views.TransactionView.as_view())
+    path('blob', views.TransactionBlobView.as_view(), name='transaction_blob_storage'),
+    path('save', views.TransactionSaveView.as_view(), name='postgres')
 ]
