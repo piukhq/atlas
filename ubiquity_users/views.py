@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 
 from atlas.csv_writer import write_to_csv
 from atlas.decorators import token_check
-from atlas.settings import logger, DELETED_UBIQUITY_USERS_CONTAINER
+from atlas.settings import DELETED_UBIQUITY_USERS_CONTAINER, logger
 from atlas.storage import create_blob_from_csv
 from ubiquity_users.models import User
 from ubiquity_users.serializers import UserSerializer
@@ -17,6 +17,7 @@ class UserSaveView(APIView):
     """
     View that saves user data to database
     """
+
     @staticmethod
     @token_check
     def post(request):
@@ -67,3 +68,11 @@ class UserBlobView(APIView):
             user.save()
 
         return Response(data=list_for_csv)
+
+
+class HealthCheck(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request):
+        return Response()
