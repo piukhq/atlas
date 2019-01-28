@@ -29,9 +29,9 @@ def create_blob_from_csv(csv, file_name=None, base_directory=None, container=Non
     except AzureException as e:
         if e.error_code == 'ContainerNotFound':
             bbs.create_container(container)
-            create_blob_from_csv(csv, file_name)
+            create_blob_from_csv(csv, file_name, base_directory, container)
         else:
-            logger.error('Azure Exception when saving to blob storage: {}'.format(e))
+            logger.error('Method: create_blob_from_csv: Azure Exception when saving to blob storage: {}'.format(e))
             raise e
 
     return Response(data=csv, status=200)
