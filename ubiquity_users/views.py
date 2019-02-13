@@ -42,7 +42,8 @@ class UserBlobView(APIView):
         for user in users:
             list_for_csv.append({
                 'email': user.email,
-                'opt_out_timestamp': user.opt_out_timestamp
+                'ubiquity_join_date': user.ubiquity_join_date,
+                'opt_out_timestamp': user.time_added_to_database
             })
 
         try:
