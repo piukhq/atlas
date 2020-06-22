@@ -6,7 +6,9 @@ stages:
 
 tests:
   stage: tests
+  image: binkhq/python:3.8
   script:
+    - pip install pipenv
     - pipenv install --dev --system --deploy
     - export HERMES_DATABASE_URL="postgres://postgres@${POSTGRES_PORT_5432_TCP_ADDR}:5432${POSTGRES_NAME}"
     - coverage run --source='.' manage.py test -v 2
@@ -16,12 +18,16 @@ tests:
 
 complexity:
   stage: tests
+  image: binkhq/python:3.8
   script:
+    - pip install xenon
     - xenon --max-average A --max-modules B --max-absolute B .
 
 flake8:
   stage: tests
+  image: binkhq/python:3.8
   script:
+    - pip install flake8
     - flake8 *
 
 build-develop:
