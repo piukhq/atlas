@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 import datetime
 
-from azure.common import AzureException
+from azure.core.exceptions import ResourceNotFoundError
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -54,7 +54,7 @@ class TransactionBlobView(APIView):
                                  base_directory='schemes',
                                  container=TRANSACTION_REPORTS_CONTAINER)
 
-        except AzureException as e:
+        except ResourceNotFoundError as e:
             logger.exception(
                 'Method: TransactionBlobView.create_blob_from_csv: Error saving to Blob storage - {} data - {}'.format(
                     e, transactions
