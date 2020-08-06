@@ -10,9 +10,12 @@ azure-storage-blob = "*"
 arrow = "*"
 psycopg2 = "*"
 uwsgi = "*"
+factory-boy = "*"
+pytest-django = "*"
 
 [dev-packages]
 flake8 = "*"
+ipdb = "*"
 
 [requires]
 python_version = "3.6"
