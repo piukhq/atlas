@@ -88,6 +88,12 @@ class TransactionSaveView(APIView):
                             status=status.HTTP_201_CREATED)
 
         logger.warning('TransactionSaveView.post: Transaction NOT saved {}'.format(transaction_serializer.errors))
+
+        id_error = transaction_serializer.errors.get("transaction_id")
+        if id_error and id_error[0].code == "unique":
+            return Response(data='Duplicate transaction ignored: {}'.format(transaction_serializer.data),
+                            status=status.HTTP_200_OK)
+
         return Response(
             data='Transaction NOT saved: {}'.format(transaction_serializer.errors), status=status.HTTP_400_BAD_REQUEST)
 

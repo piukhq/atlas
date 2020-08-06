@@ -6,10 +6,9 @@ name = "pypi"
 [packages]
 django = "*"
 djangorestframework = "*"
-azure-storage-blob = "*"
+azure-storage-blob = "==1.4.0"
 arrow = "*"
 psycopg2 = "*"
-uwsgi = "*"
 
 [dev-packages]
 flake8 = "*"
