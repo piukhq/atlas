@@ -1,6 +1,5 @@
 from datetime import datetime
 
-from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 
 from .models import Member, Request, Response
@@ -37,10 +36,10 @@ def save_request_audit(request_response):
         log['timestamp'] = datetime.fromtimestamp(log['timestamp'])
 
         if log_type == REQUEST:
-            # Check if member exists, if not create one to associate the requets to.
+            # Check if member exists, if not create one to associate the request to.
             try:
                 member = Member.objects.get(email=log['payload']['email'])
-            except ObjectDoesNotExist:
+            except Member.DoesNotExist:
                 member_serializer = MemberSerializer(data=log['payload'])
                 if member_serializer.is_valid():
                     member = member_serializer.save()
@@ -49,10 +48,10 @@ def save_request_audit(request_response):
             serializer = RequestSerializer(data=log)
 
         else:
-            # Get corresponding request object to associate respone to.
+            # Get corresponding request object to associate response to.
             try:
                 request = Request.objects.get(bink_message_uid=log['bink_message_uid'])
-            except ObjectDoesNotExist as e:
+            except Request.DoesNotExist as e:
                 logger.error(f'Request with bink_message_uid: {bink_message_uid} not found')
                 raise e
 
