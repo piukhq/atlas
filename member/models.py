@@ -1,23 +1,51 @@
 from django.db import models
 
 
-class Enrol(models.Model):
+class Member(models.Model):
     """
-    Enrol request and response
+    Member details
     """
     created_date = models.DateTimeField(auto_now_add=True, blank=True)
     email = models.CharField(max_length=128, db_index=True, blank=False)
     title = models.CharField(max_length=16, blank=True)
     first_name = models.CharField(max_length=64, blank=True)
-    last_name = models.CharField(max_length=64, blank=True)
+    last_name = models.CharField(max_length=64, blank=True, db_index=True)
+    postcode = models.CharField(max_length=10, blank=True)
+    address_1 = models.CharField(max_length=100, blank=True)
+    address_2 = models.CharField(max_length=100, blank=True)
+    city = models.CharField(max_length=50, blank=True)
+    county = models.CharField(max_length=50, blank=True)
+    country = models.CharField(max_length=50, blank=True)
     phone_number = models.CharField(max_length=25, blank=True)
-    request_datetime = models.DateTimeField(db_index=True, blank=True)
+    password = models.CharField(max_length=500, blank=True)
+
+    def __str__(self):
+        return self.email
+
+
+class Request(models.Model):
+    created_date = models.DateTimeField(auto_now_add=True, blank=True)
+    member = models.ForeignKey(Member, on_delete=models.CASCADE, related_name='requests')
     membership_plan = models.CharField(max_length=64, db_index=True, blank=True)
-    channel = models.CharField(max_length=32, db_index=True, blank=True)
-    http_response_code = models.IntegerField(blank=True)
-    response_body = models.JSONField(blank=True)
+    bink_message_uid = models.UUIDField(blank=True, db_index=True)
+    bink_record_uid = models.CharField(max_length=100, blank=True)
+    callback_url = models.URLField(max_length=200, blank=True)
+    handler_type = models.CharField(max_length=32, blank=True)
     payload = models.JSONField(blank=True)
-    response_datetime = models.DateTimeField(db_index=True, blank=True)
+    timestamp = models.DateTimeField(blank=True)
+    integration_service = models.CharField(max_length=32, blank=True)
+    channel = models.CharField(max_length=100, blank=True)
 
     def __unicode__(self):
-        return self.email
+        return self.id
+
+
+class Response(models.Model):
+    created_date = models.DateTimeField(auto_now_add=True, blank=True)
+    request = models.ForeignKey(Request, on_delete=models.CASCADE, related_name='responses')
+    response_body = models.TextField(blank=True)
+    timestamp = models.DateTimeField(blank=True)
+    status_code = models.IntegerField(blank=True)
+
+    def __unicode__(self):
+        return self.id

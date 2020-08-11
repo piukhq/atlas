@@ -3,5 +3,5 @@ from django.urls import path
 from member import views
 
 urlpatterns = [
-    path('save', views.EnrolSaveView.as_view(), name='enrol_save')
+    path('request_audit', views.RequestResponseView.as_view(), name='request_audit'),
 ]
