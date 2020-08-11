@@ -1,6 +1,10 @@
-FROM python:3.6
+FROM binkhq/python:3.8
 
 WORKDIR /app
 ADD . .
 
-RUN pip install pipenv uwsgi && pipenv install --system --deploy
+RUN pip install --no-cache-dir pipenv==2018.11.26 gunicorn && \
+    pipenv install --system --deploy --ignore-pipfile
+
+CMD [ "gunicorn", "--workers=2", "--threads=2", "--error-logfile=-", \
+                  "--access-logfile=-", "--bind=0.0.0.0:9000", "atlas.wsgi:application" ]
