@@ -54,7 +54,7 @@ tag-develop:
 
 statics-dev:
   stage: statics
-  image: binkops.azurecr.io/kubedeployer:latest
+  image: binkops.azurecr.io/kubedeployer:python3.8
   environment: dev
   script:
     - bash collectstatic.sh
@@ -86,7 +86,7 @@ tag-staging:
 
 statics-staging:
   stage: statics
-  image: binkops.azurecr.io/kubedeployer:latest
+  image: binkops.azurecr.io/kubedeployer:python3.8
   environment: staging
   script:
     - bash collectstatic.sh
@@ -106,7 +106,7 @@ tag-prod:
 
 statics-prod:
   stage: statics
-  image: binkops.azurecr.io/kubedeployer:latest
+  image: binkops.azurecr.io/kubedeployer:python3.8
   environment: prod
   script:
     - bash collectstatic.sh
