@@ -6,12 +6,13 @@ name = "pypi"
 [packages]
 django = "*"
 djangorestframework = "*"
-azure-storage-blob = "==1.4.0"
+azure-storage-blob = "==2.1.0"
 arrow = "*"
-psycopg2 = "*"
+psycopg2-binary = "*"
 
 [dev-packages]
 flake8 = "*"
+coverage = "*"
 
 [requires]
-python_version = "3.6"
+python_version = "3.8"
