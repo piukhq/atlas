@@ -16,71 +16,73 @@ def audit_url():
 
 @pytest.fixture
 def request_response_data():
-    return [
-        {
-            "audit_log_type": "REQUEST",
-            "channel": "com.bink.wallet",
-            "membership_plan_slug": "some-plan-slug",
-            "handler_type": "JOIN",
-            "bink_message_uid": "51bc9486-db0c-11ea-b8e5-acde48001122",
-            "bink_record_uid": "pym1834v0zrqxnrz5e3wjdglepko5972",
-            "timestamp": 1597071345,
-            "integration_service": "SYNC",
-            "payload": {
-                "title": "Mr",
-                "first_name": "Bonky",
-                "last_name": "Bonk",
-                "email": "kaziz2@binktest.com",
-                "postcode": "SL56RE",
-                "address_1": "8",
-                "address_2": "Street",
-                "town_city": "Rapture",
-                "county": "County",
-                "record_uid": "pym1834v0zrqxnrz5e3wjdglepko5972",
-                "country": "GB",
-                "message_uid": "51bc9486-db0c-11ea-b8e5-acde48001122",
-                "callback_url": "http://localhost:8000/join/merchant/iceland-bonus-card",
-                "marketing_opt_in": True,
-                "marketing_opt_in_thirdparty": False,
-                "merchant_scheme_id1": "oydgerxzp4k97w0pql2n0q2lo183j5mv",
-                "merchant_scheme_id2": None,
-                "dob": "2000-12-12",
-                "phone1": "02084444444"
+    return {
+        "audit_logs": [
+            {
+                "audit_log_type": "REQUEST",
+                "channel": "com.bink.wallet",
+                "membership_plan_slug": "some-plan-slug",
+                "handler_type": "JOIN",
+                "bink_message_uid": "51bc9486-db0c-11ea-b8e5-acde48001122",
+                "bink_record_uid": "pym1834v0zrqxnrz5e3wjdglepko5972",
+                "timestamp": 1597071345,
+                "integration_service": "SYNC",
+                "payload": {
+                    "title": "Mr",
+                    "first_name": "Bonky",
+                    "last_name": "Bonk",
+                    "email": "kaziz2@binktest.com",
+                    "postcode": "SL56RE",
+                    "address_1": "8",
+                    "address_2": "Street",
+                    "town_city": "Rapture",
+                    "county": "County",
+                    "record_uid": "pym1834v0zrqxnrz5e3wjdglepko5972",
+                    "country": "GB",
+                    "message_uid": "51bc9486-db0c-11ea-b8e5-acde48001122",
+                    "callback_url": "http://localhost:8000/join/merchant/iceland-bonus-card",
+                    "marketing_opt_in": True,
+                    "marketing_opt_in_thirdparty": False,
+                    "merchant_scheme_id1": "oydgerxzp4k97w0pql2n0q2lo183j5mv",
+                    "merchant_scheme_id2": None,
+                    "dob": "2000-12-12",
+                    "phone1": "02084444444"
+                }
+            },
+            {
+                "audit_log_type": "RESPONSE",
+                "channel": "com.bink.wallet",
+                "membership_plan_slug": "some-plan-slug",
+                "handler_type": "JOIN",
+                "bink_message_uid": "51bc9486-db0c-11ea-b8e5-acde48001122",
+                "bink_record_uid": "pym1834v0zrqxnrz5e3wjdglepko5972",
+                "timestamp": 1597071345,
+                "integration_service": "SYNC",
+                "status_code": 200,
+                "payload": {
+                    "title": "Mr",
+                    "first_name": "Bonky",
+                    "last_name": "Bonk",
+                    "email": "kaziz2@binktest.com",
+                    "postcode": "SL56RE",
+                    "address_1": "8",
+                    "address_2": "Street",
+                    "town_city": "Rapture",
+                    "county": "County",
+                    "record_uid": "pym1834v0zrqxnrz5e3wjdglepko5972",
+                    "country": "GB",
+                    "message_uid": "51bc9486-db0c-11ea-b8e5-acde48001122",
+                    "callback_url": "http://localhost:8000/join/merchant/iceland-bonus-card",
+                    "marketing_opt_in": True,
+                    "marketing_opt_in_thirdparty": False,
+                    "merchant_scheme_id1": "oydgerxzp4k97w0pql2n0q2lo183j5mv",
+                    "merchant_scheme_id2": None,
+                    "dob": "2000-12-12",
+                    "phone1": "02084444444"
+                }
             }
-        },
-        {
-            "audit_log_type": "RESPONSE",
-            "channel": "com.bink.wallet",
-            "membership_plan_slug": "some-plan-slug",
-            "handler_type": "JOIN",
-            "bink_message_uid": "51bc9486-db0c-11ea-b8e5-acde48001122",
-            "bink_record_uid": "pym1834v0zrqxnrz5e3wjdglepko5972",
-            "timestamp": 1597071345,
-            "integration_service": "SYNC",
-            "status_code": 200,
-            "payload": {
-                "title": "Mr",
-                "first_name": "Bonky",
-                "last_name": "Bonk",
-                "email": "kaziz2@binktest.com",
-                "postcode": "SL56RE",
-                "address_1": "8",
-                "address_2": "Street",
-                "town_city": "Rapture",
-                "county": "County",
-                "record_uid": "pym1834v0zrqxnrz5e3wjdglepko5972",
-                "country": "GB",
-                "message_uid": "51bc9486-db0c-11ea-b8e5-acde48001122",
-                "callback_url": "http://localhost:8000/join/merchant/iceland-bonus-card",
-                "marketing_opt_in": True,
-                "marketing_opt_in_thirdparty": False,
-                "merchant_scheme_id1": "oydgerxzp4k97w0pql2n0q2lo183j5mv",
-                "merchant_scheme_id2": None,
-                "dob": "2000-12-12",
-                "phone1": "02084444444"
-            }
-        }
-    ]
+        ]
+    }
 
 
 # ====== Tests ======
@@ -88,7 +90,7 @@ def request_response_data():
 
 @pytest.mark.django_db
 def test_audit_log_save_view(client, request_response_data, audit_url):
-    email = request_response_data[0]['payload']['email']
+    email = request_response_data['audit_logs'][0]['payload']['email']
 
     response = client.post(
         path=audit_url,
@@ -102,14 +104,14 @@ def test_audit_log_save_view(client, request_response_data, audit_url):
     # Check data has been stored
     stored_member = Member.objects.get(email=email)
     request = stored_member.requests.all()
-    request_bink_message_uid = request_response_data[0]['bink_message_uid']
+    request_bink_message_uid = request_response_data['audit_logs'][0]['bink_message_uid']
 
-    assert stored_member.last_name == request_response_data[0]['payload']['last_name']
+    assert stored_member.last_name == request_response_data['audit_logs'][0]['payload']['last_name']
     assert len(request) == 1
     assert str(request.first().bink_message_uid) == request_bink_message_uid
 
     response = request.first().responses.all()
-    response_status_code = request_response_data[1]['status_code']
+    response_status_code = request_response_data['audit_logs'][1]['status_code']
 
     assert len(response) == 1
     assert response.first().status_code == response_status_code

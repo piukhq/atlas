@@ -14,7 +14,7 @@ class RequestResponseView(APIView):
 
     @staticmethod
     def post(request):
-        audit_logs = request.data
+        audit_logs = request.data['audit_logs']
         save_request_audit(audit_logs)
 
         return Response('Data saved.', status=status.HTTP_201_CREATED)
