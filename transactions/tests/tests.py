@@ -200,3 +200,13 @@ class TestSaveEndpoint(APITestCase):
         resp = self.client.post(self.url, self.bad_payload, format='json')
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Transaction.objects.count(), 0)
+
+    def test_duplicate_transaction_returns_200(self):
+        self.client.credentials(HTTP_AUTHORIZATION=self.auth_headers)
+        resp = self.client.post(self.url, self.payload, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Transaction.objects.count(), 1)
+        self.client.credentials(HTTP_AUTHORIZATION=self.auth_headers)
+        resp = self.client.post(self.url, self.payload, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(Transaction.objects.count(), 1)
