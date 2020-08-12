@@ -51,4 +51,3 @@ class ServiceAuthentication(BaseAuthentication):
 
     def authenticate(self, request):
         return self.authenticate_credentials(self.get_token(request))
-

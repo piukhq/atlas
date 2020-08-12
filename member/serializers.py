@@ -41,7 +41,7 @@ def save_request_audit(request_response):
                 member = Member.objects.get(email=log['payload']['email'])
             except Member.DoesNotExist:
                 member_serializer = MemberSerializer(data=log['payload'])
-                if member_serializer.is_valid():
+                if member_serializer.is_valid(raise_exception=True):
                     member = member_serializer.save()
 
             log['member'] = member.id
