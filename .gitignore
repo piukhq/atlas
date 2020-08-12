@@ -1,5 +1,6 @@
 *.pyc
 .idea
+.vscode
 *.ipynb
 .coverage
 *pyw
@@ -7,3 +8,4 @@
 __pycache__/
 .cache
 db.sqlit3
+.DS_Store

@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from azure.common import AzureException
+from azure.core.exceptions import ResourceExistsError
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -57,7 +57,7 @@ class UserBlobView(APIView):
         try:
             create_blob_from_csv(deleted_users_csv, file_name='consents', base_directory='barclays',
                                  container=DELETED_UBIQUITY_USERS_CONTAINER)
-        except (AzureException, ValueError) as e:
+        except (ResourceExistsError, ValueError) as e:
             logger.exception(
                 'UserBlobView: Error saving to Blob storage - {} data - {}'.format(e, users))
             return Response(
