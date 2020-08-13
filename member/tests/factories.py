@@ -36,6 +36,7 @@ class MemberFactory(factory.DjangoModelFactory):
     address_1 = faker.street_address()
     city = faker.city()
     country = faker.country()
+    card_number = '123456789'
 
 
 class RequestFactory(factory.DjangoModelFactory):

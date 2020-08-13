@@ -37,6 +37,7 @@ def test_member_serializer(member_data):
     assert data['last_name'] == member_data.last_name
     assert data['phone_number'] == member_data.phone_number
     assert data['password'] == member_data.password
+    assert data['card_number'] == member_data.card_number
 
 
 @pytest.mark.django_db

@@ -27,7 +27,7 @@ class ResponseSerializer(serializers.ModelSerializer):
 REQUEST = 'REQUEST'
 
 
-def save_request_audit(request_response):
+def save_request_audit(request_response: list):
     for log in request_response:
         log_type = log.get('audit_log_type')
         bink_message_uid = log.get('bink_message_uid')
