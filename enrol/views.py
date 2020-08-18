@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 from atlas.settings import logger
 from enrol.models import EnrolRequest
 from enrol.serializers import EnrolRequestSerializer, EnrolResponseSerializer
-from member.authentication import ServiceAuthentication
+from enrol.authentication import ServiceAuthentication
 
 
 REQUEST = 'REQUEST'
