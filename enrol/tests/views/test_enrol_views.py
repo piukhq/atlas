@@ -4,14 +4,13 @@ from rest_framework import status
 from django.urls import reverse
 
 from atlas.settings import ATLAS_SERVICE_AUTH_HEADER
-from member.models import Member
+from enrol.models import EnrolRequest
+
 
 # ====== Fixtures ======
-
-
 @pytest.fixture
-def audit_url():
-    return reverse('request_audit')
+def enrol_url():
+    return reverse('enrol_audit')
 
 
 @pytest.fixture
@@ -79,21 +78,20 @@ def request_response_data():
                     "merchant_scheme_id2": None,
                     "dob": "2000-12-12",
                     "phone1": "02084444444"
-                }
+                },
+                'response_body': 'OK'
             }
         ]
     }
 
 
 # ====== Tests ======
-
-
 @pytest.mark.django_db
-def test_audit_log_save_view(client, request_response_data, audit_url):
-    email = request_response_data['audit_logs'][0]['payload']['email']
+def test_audit_log_save_view(client, request_response_data, enrol_url):
+    request_message_uid = request_response_data['audit_logs'][0]['bink_message_uid']
 
     response = client.post(
-        path=audit_url,
+        path=enrol_url,
         data=request_response_data,
         HTTP_AUTHORIZATION=ATLAS_SERVICE_AUTH_HEADER,
         content_type='application/json'
@@ -101,27 +99,18 @@ def test_audit_log_save_view(client, request_response_data, audit_url):
 
     assert response.status_code == status.HTTP_201_CREATED
 
-    # Check data has been stored
-    stored_member = Member.objects.get(email=email)
-    request = stored_member.requests.all()
-    request_bink_message_uid = request_response_data['audit_logs'][0]['bink_message_uid']
+    request = EnrolRequest.objects.filter(bink_message_uid=request_message_uid)
 
-    assert stored_member.last_name == request_response_data['audit_logs'][0]['payload']['last_name']
     assert len(request) == 1
-    assert str(request.first().bink_message_uid) == request_bink_message_uid
 
-    response = request.first().responses.all()
-    response_status_code = request_response_data['audit_logs'][1]['status_code']
+    response = request[0].responses.all()
 
     assert len(response) == 1
-    assert response.first().status_code == response_status_code
 
 
 # ====== Auth Tests ======
-
-
-def test_fail_without_token(client, request_response_data, audit_url):
-    response = client.post(path=audit_url, json=request_response_data)
+def test_fail_without_token(client, request_response_data, enrol_url):
+    response = client.post(path=enrol_url, json=request_response_data)
 
     assert response.status_code == 403
     assert response.json()['detail'] == 'Invalid token.'

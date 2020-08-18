@@ -23,6 +23,6 @@ urlpatterns = [
     path('audit/admin/', admin.site.urls),
     path('audit/transaction/', include('transactions.urls')),
     path('audit/ubiquity_user/', include('ubiquity_users.urls')),
-    path('audit/member/', include('member.urls')),
+    path('audit/enrol/', include('enrol.urls')),
     path('healthz/', HealthCheck.as_view()),
 ]

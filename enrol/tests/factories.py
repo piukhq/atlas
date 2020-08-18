@@ -5,7 +5,7 @@ import factory
 import factory.fuzzy
 from faker import Factory
 
-from member.models import Member, Request, Response
+from enrol.models import EnrolRequest, EnrolResponse
 
 
 CHANNELS = [
@@ -22,9 +22,9 @@ INTEGRATION_SERVICE = [
 faker = Factory.create(locale='en_GB')
 
 
-class MemberFactory(factory.DjangoModelFactory):
+class EnrolRequestFactory(factory.DjangoModelFactory):
     class Meta:
-        model = Member
+        model = EnrolRequest
 
     email = faker.email()
     title = faker.prefix()
@@ -37,18 +37,6 @@ class MemberFactory(factory.DjangoModelFactory):
     city = faker.city()
     country = faker.country()
     card_number = '123456789'
-
-
-class RequestFactory(factory.DjangoModelFactory):
-    class Meta:
-        model = Request
-
-    member = factory.SubFactory(MemberFactory)
-    payload = {
-        'email': faker.email(),
-        'first_name': faker.first_name(),
-        "last_name": faker.last_name()
-    }
     timestamp = datetime.now()
     integration_service = factory.fuzzy.FuzzyChoice(INTEGRATION_SERVICE)
     channel = factory.fuzzy.FuzzyChoice(CHANNELS)
@@ -59,11 +47,11 @@ class RequestFactory(factory.DjangoModelFactory):
     handler_type = 'JOIN'
 
 
-class ResponseFactory(factory.DjangoModelFactory):
+class EnrolResponseFactory(factory.DjangoModelFactory):
     class Meta:
-        model = Response
+        model = EnrolResponse
 
-    request = factory.SubFactory(RequestFactory)
+    request = factory.SubFactory(EnrolRequestFactory)
     response_body = {
         "email": faker.email(),
         "first_name": faker.first_name(),
