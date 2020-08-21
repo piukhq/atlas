@@ -16,7 +16,7 @@ class EnrolRequest(models.Model):
     phone_number = models.CharField(max_length=25, blank=True)
     password = models.CharField(max_length=500, blank=True)
     card_number = models.CharField(max_length=50, blank=True)
-    membership_plan = models.CharField(max_length=64, db_index=True, blank=True)
+    membership_plan_slug = models.CharField(max_length=64, db_index=True, blank=True)
     bink_message_uid = models.UUIDField(blank=True, db_index=True)
     bink_record_uid = models.CharField(max_length=100, blank=True)
     callback_url = models.URLField(max_length=200, blank=True)

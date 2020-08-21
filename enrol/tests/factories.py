@@ -42,7 +42,7 @@ class EnrolRequestFactory(factory.DjangoModelFactory):
     channel = factory.fuzzy.FuzzyChoice(CHANNELS)
     bink_message_uid = uuid4()
     bink_record_uid = 'testBinkRecordUID'
-    membership_plan = 'test_membership_plan'
+    membership_plan_slug = 'test_membership_plan'
     callback_url = 'http://test-call-back-url'
     handler_type = 'JOIN'
     payload = {'payload': 'test'}
