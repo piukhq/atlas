@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 
 from atlas.settings import logger
 from enrol.models import EnrolRequest
-from enrol.serializers import EnrolRequestSerializer, EnrolResponseSerializer
+from enrol.serializers import EnrolRequestSerializer
 from enrol.authentication import ServiceAuthentication
 
 
@@ -14,36 +14,31 @@ REQUEST = 'REQUEST'
 
 
 class EnrolRequestView(APIView):
-    """
-    Saves Enrol and registration requests and responses.
-    """
+    pass
+#     """
+#     Saves Enrol and registration requests and responses.
+#     """
     authentication_classes = (ServiceAuthentication, )
 
     @staticmethod
     def post(request):
         audit_log = request.data['audit_logs']
+        log_data = {}
 
         for log in audit_log:
             log_type = log.get('audit_log_type')
-            bink_message_uid = log.get('bink_message_uid')
-            log['timestamp'] = datetime.fromtimestamp(log['timestamp'])
-
-            # Flatten out for serializer
-            log_data = {**log, **log.pop('payload')}
 
             if log_type == REQUEST:
-                serializer = EnrolRequestSerializer(data=log_data)
+                # Flatten out for serializer (name, address ect..)
+                log_data = {**log, **log['payload']}
+                log_data['request_timestamp'] = datetime.fromtimestamp(log['timestamp'])
             else:
-                try:
-                    request = EnrolRequest.objects.get(bink_message_uid=log['bink_message_uid'])
-                except EnrolRequest.DoesNotExist as e:
-                    logger.error(f'Request with bink_message_uid: {bink_message_uid} not found')
-                    raise e
+                log_data = {**log_data, **log}
+                log_data['response_timestamp'] = datetime.fromtimestamp(log['timestamp'])
 
-                log_data['request'] = request.id
-                serializer = EnrolResponseSerializer(data=log_data)
+        serializer = EnrolRequestSerializer(data=log_data)
 
-            if serializer.is_valid(raise_exception=True):
-                serializer.save()
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
 
         return Response('Data saved.', status=status.HTTP_201_CREATED)

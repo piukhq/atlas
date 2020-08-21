@@ -88,8 +88,6 @@ def request_response_data():
 # ====== Tests ======
 @pytest.mark.django_db
 def test_audit_log_save_view(client, request_response_data, enrol_url):
-    request_message_uid = request_response_data['audit_logs'][0]['bink_message_uid']
-
     response = client.post(
         path=enrol_url,
         data=request_response_data,
@@ -99,13 +97,13 @@ def test_audit_log_save_view(client, request_response_data, enrol_url):
 
     assert response.status_code == status.HTTP_201_CREATED
 
-    request = EnrolRequest.objects.filter(bink_message_uid=request_message_uid)
+    request_data = request_response_data['audit_logs'][0]
+    response_data = request_response_data['audit_logs'][1]
 
-    assert len(request) == 1
+    enrol_request = EnrolRequest.objects.last()
 
-    response = request[0].responses.all()
-
-    assert len(response) == 1
+    assert str(enrol_request.bink_message_uid) == request_data['bink_message_uid']
+    assert enrol_request.status_code == response_data['status_code']
 
 
 # ====== Auth Tests ======

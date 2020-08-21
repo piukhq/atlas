@@ -2,19 +2,14 @@ from datetime import datetime
 
 import pytest
 
-from enrol.serializers import EnrolRequestSerializer, EnrolResponseSerializer
-from enrol.tests.factories import EnrolRequestFactory, EnrolResponseFactory
+from enrol.serializers import EnrolRequestSerializer
+from enrol.tests.factories import EnrolRequestFactory
 
 
 # ====== Fixtures ======
 @pytest.fixture
 def request_data():
     return EnrolRequestFactory()
-
-
-@pytest.fixture
-def response_data():
-    return EnrolResponseFactory()
 
 
 # ====== Tests =======
@@ -30,13 +25,6 @@ def test_request_serializer(request_data):
     assert data['phone_number'] == request_data.phone_number
     assert data['password'] == request_data.password
     assert data['card_number'] == request_data.card_number
-    assert data['timestamp'] == datetime.strftime(request_data.timestamp, '%Y-%m-%dT%H:%M:%S.%fZ')
+    assert data['request_timestamp'] == datetime.strftime(request_data.request_timestamp, '%Y-%m-%dT%H:%M:%S.%fZ')
     assert data['integration_service'] == request_data.integration_service
-
-
-@pytest.mark.django_db
-def test_response_serializer(response_data):
-    serializer = EnrolResponseSerializer(response_data)
-    data = serializer.data
-
-    assert data['status_code'] == response_data.status_code
+    assert data['status_code'] == request_data.status_code
