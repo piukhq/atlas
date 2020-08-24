@@ -23,7 +23,7 @@ class TransactionRequest(models.Model):
     Transaction request for audit
     """
     created_date = models.DateTimeField(auto_now_add=True, blank=False)
-    customer_number = models.CharField(max_length=100, db_index=True, blank=True)
+    customer_number = models.CharField(max_length=250, db_index=True, blank=True)
     transaction_id = models.CharField(max_length=100, db_index=True, unique=True)
     request_timestamp = models.DateTimeField(db_index=True, blank=True)
     membership_plan = models.CharField(max_length=64, db_index=True, blank=True)

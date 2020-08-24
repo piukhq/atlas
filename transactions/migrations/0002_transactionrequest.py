@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('created_date', models.DateTimeField(auto_now_add=True)),
-                ('customer_number', models.CharField(blank=True, db_index=True, max_length=100)),
+                ('customer_number', models.CharField(blank=True, db_index=True, max_length=250)),
                 ('transaction_id', models.CharField(db_index=True, max_length=100, unique=True)),
                 ('request_timestamp', models.DateTimeField(blank=True, db_index=True)),
                 ('membership_plan', models.CharField(blank=True, db_index=True, max_length=64)),
