@@ -12,5 +12,5 @@ class TransactionSerializer(serializers.ModelSerializer):
 
 class TransactionRequestSerializer(serializers.ModelSerializer):
     class Meta:
-        models = TransactionRequest
+        model = TransactionRequest
         fields = '__all__'

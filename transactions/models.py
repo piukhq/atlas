@@ -27,11 +27,11 @@ class TransactionRequest(models.Model):
     transaction_id = models.CharField(max_length=100, db_index=True, unique=True)
     request_timestamp = models.DateTimeField(db_index=True, blank=True)
     membership_plan = models.CharField(max_length=64, db_index=True, blank=True)
-    bink_message_uid = models.UUIDField(blank=True, db_index=True)
-    bink_record_uid = models.CharField(max_length=100, blank=True, null=True)
-    request = models.TextField(blank=True)
+    message_uid = models.UUIDField(blank=True, db_index=True)
+    record_uid = models.CharField(max_length=100, blank=True, null=True)
+    request = models.JSONField(blank=True)
     status_code = models.IntegerField(blank=True)
-    response = models.TextField(blank=True)
+    response = models.JSONField(blank=True)
     response_timestamp = models.DateTimeField(db_index=True, blank=True)
 
     def __unicode__(self):
