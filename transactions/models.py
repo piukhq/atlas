@@ -16,3 +16,23 @@ class Transaction(models.Model):
 
     def __unicode__(self):
         return self.created_date
+
+
+class TransactionRequest(models.Model):
+    """
+    Transaction request for audit
+    """
+    created_date = models.DateTimeField(auto_now_add=True, blank=False)
+    customer_number = models.CharField(max_length=100, db_index=True, blank=True)
+    transaction_id = models.CharField(max_length=100, db_index=True, unique=True)
+    request_timestamp = models.DateTimeField(db_index=True, blank=True)
+    membership_plan = models.CharField(max_length=64, db_index=True, blank=True)
+    bink_message_uid = models.UUIDField(blank=True, db_index=True)
+    bink_record_uid = models.CharField(max_length=100, blank=True, null=True)
+    request = models.TextField(blank=True)
+    status_code = models.IntegerField(blank=True)
+    response = models.TextField(blank=True)
+    response_timestamp = models.DateTimeField(db_index=True, blank=True)
+
+    def __unicode__(self):
+        return self.transaction_id
