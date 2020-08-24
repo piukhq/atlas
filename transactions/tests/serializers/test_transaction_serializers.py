@@ -47,7 +47,7 @@ def test_transaction_request_valid(transaction_data):
 
 
 @pytest.mark.django_db
-def test_transaction_request_valid(transaction_object):
+def test_transaction_request_serializer(transaction_object):
     serializer = TransactionRequestSerializer(transaction_object)
 
     data = serializer.data
