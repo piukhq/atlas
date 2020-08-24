@@ -9,10 +9,13 @@ djangorestframework = "*"
 azure-storage-blob = "*"
 arrow = "*"
 psycopg2-binary = "*"
+factory-boy = "*"
+pytest-django = "*"
 
 [dev-packages]
 flake8 = "*"
 coverage = "*"
+ipdb = "*"
 
 [requires]
 python_version = "3.8"
