@@ -37,9 +37,9 @@ class MembershipRequestView(APIView):
                 if serializer.is_valid(raise_exception=True):
                     serializer.save()
             else:
-                message_uid = log['bink_message_uid']
+                message_uid = log['message_uid']
                 try:
-                    membership_request = MembershipRequest.objects.get(bink_message_uid=message_uid)
+                    membership_request = MembershipRequest.objects.get(message_uid=message_uid)
                 except MembershipRequest.DoesNotExist as e:
                     logger.error(f'No request with the message_uid - {message_uid}')
                     raise e

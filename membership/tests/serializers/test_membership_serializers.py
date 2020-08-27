@@ -18,8 +18,8 @@ def request_dict_data():
         "channel": "com.bink.wallet",
         "membership_plan_slug": "some-plan-slug",
         "handler_type": "JOIN",
-        "bink_message_uid": "51bc9486-db0c-11ea-b8e5-acde48001122",
-        "bink_record_uid": "pym1834v0zrqxnrz5e3wjdglepko5972",
+        "message_uid": "51bc9486-db0c-11ea-b8e5-acde48001122",
+        "record_uid": "pym1834v0zrqxnrz5e3wjdglepko5972",
         "request_timestamp": datetime.now(),
         "integration_service": "SYNC",
         "callback_url": "http://localhost:8000/join/merchant/iceland-bonus-card",
@@ -71,7 +71,7 @@ def test_request_serializer(request_data):
     assert data['request_timestamp'] == datetime.strftime(request_data.request_timestamp, '%Y-%m-%dT%H:%M:%S.%fZ')
     assert data['integration_service'] == request_data.integration_service
     assert data['status_code'] == request_data.status_code
-    assert data['bink_message_uid'] == str(request_data.bink_message_uid)
+    assert data['message_uid'] == str(request_data.message_uid)
     assert data['channel'] == request_data.channel
     assert data['payload'] == request_data.payload
 
@@ -82,4 +82,4 @@ def test_request_serializer_is_valid(request_dict_data):
     serializer.is_valid(raise_exception=True)
     instance = serializer.save()
 
-    assert str(instance.bink_message_uid) == request_dict_data['bink_message_uid']
+    assert str(instance.message_uid) == request_dict_data['message_uid']
