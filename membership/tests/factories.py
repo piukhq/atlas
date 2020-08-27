@@ -22,7 +22,7 @@ INTEGRATION_SERVICE = [
 faker = Factory.create(locale='en_GB')
 
 
-class MembershipRequestFactory(factory.DjangoModelFactory):
+class MembershipRequestFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = MembershipRequest
 
@@ -40,8 +40,8 @@ class MembershipRequestFactory(factory.DjangoModelFactory):
     request_timestamp = datetime.now()
     integration_service = factory.fuzzy.FuzzyChoice(INTEGRATION_SERVICE)
     channel = factory.fuzzy.FuzzyChoice(CHANNELS)
-    bink_message_uid = uuid4()
-    bink_record_uid = 'testBinkRecordUID'
+    message_uid = uuid4()
+    record_uid = 'testBinkRecordUID'
     membership_plan_slug = 'test_membership_plan'
     callback_url = 'http://test-call-back-url'
     handler_type = 'JOIN'
