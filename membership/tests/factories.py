@@ -22,7 +22,7 @@ INTEGRATION_SERVICE = [
 faker = Factory.create(locale='en_GB')
 
 
-class MembershipRequestFactory(factory.DjangoModelFactory):
+class MembershipRequestFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = MembershipRequest
 

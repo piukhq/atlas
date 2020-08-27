@@ -6,7 +6,7 @@ import factory
 from transactions.models import TransactionRequest
 
 
-class TransactionRequestFactory(factory.DjangoModelFactory):
+class TransactionRequestFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = TransactionRequest
 
