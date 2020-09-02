@@ -22,12 +22,12 @@ class TransactionRequest(models.Model):
     """
     Transaction request for audit
     """
-    created_date = models.DateTimeField(auto_now_add=True, blank=False)
-    customer_number = models.CharField(max_length=250, db_index=True, blank=True)
+    created_date = models.DateTimeField(auto_now_add=True)
+    customer_number = models.CharField(max_length=250, blank=True)
     transaction_id = models.CharField(max_length=100, db_index=True, unique=True)
     request_timestamp = models.DateTimeField(db_index=True, blank=True)
     membership_plan = models.CharField(max_length=64, db_index=True, blank=True)
-    message_uid = models.UUIDField(blank=True, db_index=True)
+    message_uid = models.CharField(max_length=250, blank=True, null=True)
     record_uid = models.CharField(max_length=100, blank=True, null=True)
     request = models.JSONField(blank=True)
     status_code = models.IntegerField(blank=True)

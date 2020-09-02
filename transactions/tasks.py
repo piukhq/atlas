@@ -12,19 +12,41 @@ from message_queue.queue_agent import MessageQueue
 @periodic_task(run_every=crontab(hour=1))
 def process_transactions():
     transaction_queue = MessageQueue(settings.TRANSACTION_QUEUE)
-
     message = transaction_queue.read_message()
+
     if message:
-        request_data = loads(message['request'])
-        response_data = loads(message['response'])
+        audit_data = []
+        request = message['request']
 
-        data = message.copy()
+        data = {
+            'status_code': message['status_code'],
+            'message_uid': request.get('message_uid', ""),
+            'request_timestamp': message['request_timestamp'],
+            'response_timestamp': message['response_timestamp'],
+            'request': request,
+            'response': message['response'],
+            'membership_plan': message['scheme_provider']
+        }
 
-        data['customer_number'] = request_data.get('customer_number')
-        data['membership_plan'] = request_data.get('membership_plan')
-        data['request'] = request_data
-        data['response'] = response_data
+        # customer number provided for Harvey Nichols
+        if request.get('CustomerClaimTransactionRequest'):
+            data['customer_number'] = request['CustomerClaimTransactionRequest']['customerNumber']
 
-        serializer = TransactionRequestSerializer(data=data)
+        # Iceland provides a list of transactions, so we need to loop through and bulk create.
+        if request.get('body'):
+            data['message_uid'] = loads(request['body']).get('message_uid')
+            transactions = loads(request['body'])['transactions']
+
+            if isinstance(transactions, list):
+                for transaction in transactions:
+                    transaction_data = data.copy()
+                    transaction_data['transaction_id'] = transaction['transaction_id']
+                    transaction_data['record_uid'] = transaction['record_uid']
+                    audit_data.append(transaction_data)
+        else:
+            data['transaction_id'] = message['transactions'][0]['transaction_id']
+            audit_data.append(data)
+
+        serializer = TransactionRequestSerializer(data=audit_data, many=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
