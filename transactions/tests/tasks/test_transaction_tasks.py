@@ -1,3 +1,4 @@
+from datetime import datetime
 from json import dumps, loads
 
 import kombu
@@ -123,6 +124,8 @@ def test_process_iceland_transactions(rabbit_settings, add_iceland_message_to_qu
     assert len(transactions) == 2
 
     for num, transaction in enumerate(transactions):
+        assert datetime.strftime(transaction.request_timestamp,
+                                 '%Y-%m-%d %H:%M:%S') == iceland_transactions['request_timestamp']
         assert transaction.status_code == iceland_transactions['status_code']
         assert transaction.transaction_id == request_data[num]['transaction_id']
         assert transaction.record_uid == request_data[num]['record_uid']
