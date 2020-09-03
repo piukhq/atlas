@@ -1,9 +1,10 @@
 from datetime import datetime
 
 import pytest
+from django.utils import timezone
 
-from membership.serializers import MembershipRequestSerializer
-from membership.tests.factories import MembershipRequestFactory
+from membership.serializers import MembershipRequestSerializer, MembershipResponseSerializer
+from membership.tests.factories import MembershipRequestFactory, MembershipResponseFactory
 
 
 # ====== Fixtures ======
@@ -20,7 +21,7 @@ def request_dict_data():
         "handler_type": "JOIN",
         "message_uid": "51bc9486-db0c-11ea-b8e5-acde48001122",
         "record_uid": "pym1834v0zrqxnrz5e3wjdglepko5972",
-        "request_timestamp": datetime.now(),
+        "timestamp": timezone.now(),
         "integration_service": "SYNC",
         "callback_url": "http://localhost:8000/join/merchant/iceland-bonus-card",
         "title": "Mr",
@@ -53,10 +54,12 @@ def request_dict_data():
             "dob": "2000-12-12",
             "phone1": "02084444444"
         },
-        "response_timestamp": datetime.now(),
-        "status_code": 200,
-        'response_body': 'OK'
     }
+
+
+@pytest.fixture
+def response_data():
+    return MembershipResponseFactory()
 
 
 # ====== Tests =======
@@ -68,9 +71,8 @@ def test_request_serializer(request_data):
     assert data['email'] == request_data.email
     assert data['title'] == request_data.title
     assert data['first_name'] == request_data.first_name
-    assert data['request_timestamp'] == datetime.strftime(request_data.request_timestamp, '%Y-%m-%dT%H:%M:%S.%fZ')
+    assert data['timestamp'] == datetime.strftime(request_data.timestamp, '%Y-%m-%dT%H:%M:%S.%fZ')
     assert data['integration_service'] == request_data.integration_service
-    assert data['status_code'] == request_data.status_code
     assert data['message_uid'] == str(request_data.message_uid)
     assert data['channel'] == request_data.channel
     assert data['payload'] == request_data.payload
@@ -83,3 +85,13 @@ def test_request_serializer_is_valid(request_dict_data):
     instance = serializer.save()
 
     assert str(instance.message_uid) == request_dict_data['message_uid']
+
+
+@pytest.mark.django_db
+def test_response_serializer(response_data):
+    serializer = MembershipResponseSerializer(response_data)
+    data = serializer.data
+
+    assert data['status_code'] == response_data.status_code
+    assert data['timestamp'] == datetime.strftime(response_data.timestamp, '%Y-%m-%dT%H:%M:%S.%fZ')
+    assert data['response_body'] == str(response_data.response_body)
