@@ -5,7 +5,7 @@ from celery.task import periodic_task
 
 from django.conf import settings
 
-from .serializers import TransactionRequestSerializer
+from transactions.serializers import TransactionRequestSerializer
 from message_queue.queue_agent import MessageQueue
 
 
