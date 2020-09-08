@@ -1,12 +1,10 @@
 from datetime import datetime
 from uuid import uuid4
 
-import factory
 import factory.fuzzy
 from faker import Factory
 
-from membership.models import MembershipRequest
-
+from membership.models import MembershipRequest, MembershipResponse
 
 CHANNELS = [
     'bink',
@@ -37,7 +35,7 @@ class MembershipRequestFactory(factory.django.DjangoModelFactory):
     city = faker.city()
     country = faker.country()
     card_number = '123456789'
-    request_timestamp = datetime.now()
+    timestamp = datetime.now()
     integration_service = factory.fuzzy.FuzzyChoice(INTEGRATION_SERVICE)
     channel = factory.fuzzy.FuzzyChoice(CHANNELS)
     message_uid = uuid4()
@@ -46,10 +44,17 @@ class MembershipRequestFactory(factory.django.DjangoModelFactory):
     callback_url = 'http://test-call-back-url'
     handler_type = 'JOIN'
     payload = {'payload': 'test'}
+
+
+class MembershipResponseFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = MembershipResponse
+
+    request = factory.SubFactory(MembershipRequestFactory)
     response_body = {
         "email": faker.email(),
         "first_name": faker.first_name(),
         "last_name": faker.last_name()
     }
-    response_timestamp = datetime.now()
+    timestamp = datetime.now()
     status_code = 200
