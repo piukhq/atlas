@@ -85,11 +85,7 @@ class MembershipRequestView(APIView):
         if slug not in SLUG_TO_CREDENTIAL_MAP:
             return credentials
 
-        new_mapping = {}
-        for k, v in credentials.items():
-            if k in SLUG_TO_CREDENTIAL_MAP[slug]:
-                key = SLUG_TO_CREDENTIAL_MAP[slug][k]
-                new_mapping[key] = v
-            else:
-                new_mapping[k] = v
-        return new_mapping
+        return {
+            SLUG_TO_CREDENTIAL_MAP[slug].get(k, k): v
+            for k, v in credentials.items()
+        }
