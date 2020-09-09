@@ -13,7 +13,7 @@ from transactions.tasks import process_transactions
 # ====== Fixtures ======
 @pytest.fixture
 def rabbit_settings(settings):
-    settings.RABBITMQ_DSN = 'memory://'
+    settings.CELERY_BROKER_URL = 'memory://'
 
 
 @pytest.fixture
@@ -88,7 +88,7 @@ def iceland_transactions():
 
 @pytest.fixture
 def add_harvey_nichols_message_to_queue(rabbit_settings, harvey_nichols_transaction):
-    with kombu.Connection(settings.RABBITMQ_DSN) as conn:
+    with kombu.Connection(settings.CELERY_BROKER_URL) as conn:
         simple_queue = conn.SimpleQueue(settings.TRANSACTION_QUEUE)
         simple_queue.put(harvey_nichols_transaction)
         simple_queue.close()
@@ -96,7 +96,7 @@ def add_harvey_nichols_message_to_queue(rabbit_settings, harvey_nichols_transact
 
 @pytest.fixture
 def add_iceland_message_to_queue(rabbit_settings, iceland_transactions):
-    with kombu.Connection(settings.RABBITMQ_DSN) as conn:
+    with kombu.Connection(settings.CELERY_BROKER_URL) as conn:
         simple_queue = conn.SimpleQueue(settings.TRANSACTION_QUEUE)
         simple_queue.put(iceland_transactions)
         simple_queue.close()

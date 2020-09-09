@@ -5,7 +5,7 @@ from django.conf import settings
 
 class MessageQueue:
     def __init__(self, queue_name: str):
-        self.queue_dsn = settings.RABBITMQ_DSN
+        self.queue_dsn = settings.CELERY_BROKER_URL
         self.queue_name = queue_name
 
     def read_message(self):

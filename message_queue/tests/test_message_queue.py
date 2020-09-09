@@ -8,7 +8,7 @@ from message_queue.queue_agent import MessageQueue
 # ====== Fixtures ======
 @pytest.fixture
 def rabbit_settings(settings):
-    settings.RABBITMQ_DSN = 'memory://'
+    settings.CELERY_BROKER_URL = 'memory://'
 
 
 # ====== Tests ======
@@ -17,7 +17,7 @@ def test_read_message(rabbit_settings):
     test_message = 'test message'
 
     # Add message to test queue
-    with kombu.Connection(settings.RABBITMQ_DSN) as conn:
+    with kombu.Connection(settings.CELERY_BROKER_URL) as conn:
         simple_queue = conn.SimpleQueue(queue_name)
         simple_queue.put(test_message)
         simple_queue.close()
