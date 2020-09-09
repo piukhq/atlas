@@ -13,7 +13,10 @@ class RequestAdmin(admin.ModelAdmin):
     inlines = (ResponseAdminInline, )
     readonly_fields = ('created_date',)
     list_display = ('id', 'email', 'first_name', 'last_name', 'message_uid')
-    search_fields = ('id', 'email', 'message_uid', 'record_uid', 'membership_plan_slug', 'channel')
+    search_fields = (
+        'id', 'email', 'last_name', 'card_number', 'timestamp', 'response__timestamp', 'message_uid', 'record_uid',
+        'membership_plan_slug', 'channel',
+    )
     ordering = ('-created_date',)
 
 
