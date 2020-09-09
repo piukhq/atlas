@@ -1,17 +1,13 @@
-from celery.schedules import crontab
-from celery.task import periodic_task
-
 from django.conf import settings
+
+from celery import shared_task
 
 from transactions.merchant import get_merchant
 from transactions.serializers import TransactionRequestSerializer
 from message_queue.queue_agent import MessageQueue
 
 
-@periodic_task(run_every=crontab(
-    minute=settings.CRONTAB_MINUTES,
-    hour=f'*/{settings.CRONTAB_HOUR}')
-)
+@shared_task
 def process_transactions():
     transaction_queue = MessageQueue(settings.TRANSACTION_QUEUE)
     message = transaction_queue.read_message()
