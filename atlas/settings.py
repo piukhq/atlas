@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 import logging
 import os
 
+from celery.schedules import crontab
+
 from environment import env_var, read_env
 
 logging.basicConfig(format='%(process)s %(asctime)s %(levelname)s %(message)s')
@@ -175,6 +177,15 @@ TRANSACTION_QUEUE = env_var('TRANSACTION_QUEUE', 'tx_matching')
 # Crontab
 CRONTAB_HOUR = env_var('CRONTAB_HOUR', 1)
 CRONTAB_MINUTES = env_var('CRONTAB_MINUTE', 0)
+
+# Celery
+CELERY_BEAT_SCHEDULE = {
+    # Checks for messages on tx_matching queue.
+    'check-for-transaction-message': {
+        'task': 'transactions.tasks.process_transactions',
+        'schedule': crontab(minute=CRONTAB_MINUTES, hour=f'*/{CRONTAB_HOUR}'),
+    },
+}
 
 PROMETHEUS_LATENCY_BUCKETS = (.050, .125, .150, .2, .375, .450, .6, .8, 1.0, 2.0, 3.0, 4.0, 6.0, 8.0, 10.0, 12.0,
                               15.0, 20.0, 30.0, float("inf"))
