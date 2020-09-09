@@ -261,7 +261,7 @@ def test_audit_log_update_credentials_from_response_does_not_save_on_validation_
     membership_request.save()
 
     response_data_str_payload["audit_logs"][0]["payload"] = (f"{{\"customerNumber\":\"12345\", "
-                                                             f"\"email\": \"some@e.mail\", "
+                                                             f"\"last_name\": \"Bonky\", "
                                                              f"\"first_name\": \"{'a' * 260}\"}}")
 
     response = client.post(
@@ -275,7 +275,7 @@ def test_audit_log_update_credentials_from_response_does_not_save_on_validation_
 
     membership_request.refresh_from_db()
     assert membership_request.card_number == ""
-    assert not membership_request.email == "some@e.mail"
+    assert not membership_request.last_name == "Bonky"
 
 
 # ====== Auth Tests ======

@@ -113,7 +113,7 @@ class MembershipRequestView(APIView):
                 return log_data
 
         # Update any fields that were not populated in the initial request e.g card_number
-        req_serializer = MembershipRequestSerializer(membership_request, data=log_data)
+        req_serializer = MembershipRequestSerializer(membership_request, data=log_data, partial=True)
         try:
             if req_serializer.is_valid(raise_exception=True):
                 req_serializer.save()
