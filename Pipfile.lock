@@ -62,7 +62,6 @@
             ],
             "index": "pypi",
             "version": "==12.4.0"
-<<<<<<< HEAD
         },
         "billiard": {
             "hashes": [
@@ -78,8 +77,6 @@
             ],
             "index": "pypi",
             "version": "==4.4.7"
-=======
->>>>>>> 08a0daf56e06c111b15527424ca849e93811b739
         },
         "certifi": {
             "hashes": [
