@@ -251,6 +251,33 @@ def test_audit_log_update_credentials_from_response(
     assert not membership_request.email == "some@e.mail"
 
 
+@pytest.mark.django_db
+@mock.patch("membership.views.SLUG_TO_CREDENTIAL_MAP", SLUG_TO_CREDENTIAL_MAP)
+def test_audit_log_update_credentials_from_response_does_not_save_on_validation_error(
+    client, response_data, response_data_json_str_payload, response_data_str_payload, membership_url
+):
+    membership_request = MembershipRequestFactory(message_uid='51bc9486-db0c-11ea-b8e5-acde48001122')
+    membership_request.card_number = ''
+    membership_request.save()
+
+    response_data_str_payload["audit_logs"][0]["payload"] = (f"{{\"customerNumber\":\"12345\", "
+                                                             f"\"email\": \"some@e.mail\", "
+                                                             f"\"first_name\": \"{'a' * 260}\"}}")
+
+    response = client.post(
+        path=membership_url,
+        data=response_data_str_payload,
+        HTTP_AUTHORIZATION=ATLAS_SERVICE_AUTH_HEADER,
+        content_type='application/json'
+    )
+
+    assert response.status_code == status.HTTP_201_CREATED
+
+    membership_request.refresh_from_db()
+    assert membership_request.card_number == ""
+    assert not membership_request.email == "some@e.mail"
+
+
 # ====== Auth Tests ======
 def test_fail_without_token(client, request_response_data, membership_url):
     response = client.post(path=membership_url, json=request_response_data)

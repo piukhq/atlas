@@ -114,7 +114,14 @@ class MembershipRequestView(APIView):
 
         # Update any fields that were not populated in the initial request e.g card_number
         req_serializer = MembershipRequestSerializer(membership_request, data=log_data)
-        if req_serializer.is_valid():
-            req_serializer.save()
+        try:
+            if req_serializer.is_valid(raise_exception=True):
+                req_serializer.save()
+        except ValidationError as e:
+            logger.warning(
+                f"Error occurred when updating MembershipRequest (id={membership_request.id}) \n"
+                f"Data - {log_data} \n"
+                f"ValidationError - {e}"
+            )
 
         return log_data
