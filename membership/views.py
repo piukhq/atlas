@@ -1,12 +1,15 @@
+import json
 from datetime import datetime
 
 from rest_framework import status
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from .mappings import SLUG_TO_CREDENTIAL_MAP
 from .models import MembershipRequest
 from atlas.settings import logger
-from membership.serializers import MembershipRequestSerializer
+from membership.serializers import MembershipRequestSerializer, MembershipResponseSerializer
 from membership.authentication import ServiceAuthentication
 
 
@@ -19,34 +22,70 @@ class MembershipRequestView(APIView):
     """
     authentication_classes = (ServiceAuthentication, )
 
-    @staticmethod
-    def post(request):
-        audit_log = request.data['audit_logs']
-        log_data = {}
+    def post(self, request):
+        audit_logs = request.data['audit_logs']
 
-        for log in audit_log:
+        for log in audit_logs:
             log_type = log.get('audit_log_type')
 
             if log_type == REQUEST:
                 # Flatten out for serializer (name, address ect..)
-                log_data = {**log, **log['payload']}
-                log_data['request_timestamp'] = datetime.fromtimestamp(log['timestamp'])
+                log_data = {
+                    **log,
+                    **self.flatten_dict(log['payload']),
+                    'timestamp': datetime.fromtimestamp(log['timestamp'])
+                }
 
-                serializer = MembershipRequestSerializer(data=log_data)
+                # Map credentials to model fields depending on scheme
+                mapped_log_data = self.map_credentials(log_data, log['membership_plan_slug'])
 
-                if serializer.is_valid(raise_exception=True):
-                    serializer.save()
+                serializer = MembershipRequestSerializer(data=mapped_log_data)
             else:
-                message_uid = log['bink_message_uid']
+                message_uid = log['message_uid']
                 try:
-                    membership_request = MembershipRequest.objects.get(bink_message_uid=message_uid)
+                    membership_request = MembershipRequest.objects.only("id").get(message_uid=message_uid)
                 except MembershipRequest.DoesNotExist as e:
                     logger.error(f'No request with the message_uid - {message_uid}')
                     raise e
 
-                membership_request.status_code = log['status_code']
-                membership_request.response_body = log['response_body']
-                membership_request.response_timestamp = datetime.fromtimestamp(log['timestamp'])
-                membership_request.save()
+                log_data = {
+                    **log,
+                    'request': membership_request.id,
+                    'timestamp': datetime.fromtimestamp(log['timestamp']),
+                    'payload': json.dumps(log['payload']),
+                }
+
+                serializer = MembershipResponseSerializer(data=log_data)
+
+            try:
+                if serializer.is_valid(raise_exception=True):
+                    serializer.save()
+            except ValidationError as e:
+                logger.error(f"Error saving audit log - {e} - log data: {log_data}")
+                raise
 
         return Response('Data saved.', status=status.HTTP_201_CREATED)
+
+    def flatten_dict(self, obj: dict) -> dict:
+        """
+        Very niche method of flattening a dict due to the following:
+            1 - If a value is a dict, the corresponding key is discarded.
+            2 - Does not account for key name clashes and so conflicting names will be overwritten.
+        """
+        flattened_dict = {}
+        for k, v in obj.items():
+            if isinstance(v, dict):
+                flattened_dict.update(self.flatten_dict(v))
+            else:
+                flattened_dict[k] = v
+        return flattened_dict
+
+    @staticmethod
+    def map_credentials(credentials: dict, slug: str) -> dict:
+        if slug not in SLUG_TO_CREDENTIAL_MAP:
+            return credentials
+
+        return {
+            SLUG_TO_CREDENTIAL_MAP[slug].get(k, k): v
+            for k, v in credentials.items()
+        }

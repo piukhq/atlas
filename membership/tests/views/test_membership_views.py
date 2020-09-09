@@ -4,7 +4,7 @@ from rest_framework import status
 from django.urls import reverse
 
 from atlas.settings import ATLAS_SERVICE_AUTH_HEADER
-from membership.models import MembershipRequest
+from membership.models import MembershipResponse
 from membership.tests.factories import MembershipRequestFactory
 
 
@@ -23,8 +23,8 @@ def request_response_data():
                 "channel": "com.bink.wallet",
                 "membership_plan_slug": "some-plan-slug",
                 "handler_type": "JOIN",
-                "bink_message_uid": "51bc9486-db0c-11ea-b8e5-acde48001122",
-                "bink_record_uid": "pym1834v0zrqxnrz5e3wjdglepko5972",
+                "message_uid": "51bc9486-db0c-11ea-b8e5-acde48001122",
+                "record_uid": "pym1834v0zrqxnrz5e3wjdglepko5972",
                 "timestamp": 1597071345,
                 "integration_service": "SYNC",
                 "payload": {
@@ -54,8 +54,8 @@ def request_response_data():
                 "channel": "com.bink.wallet",
                 "membership_plan_slug": "some-plan-slug",
                 "handler_type": "JOIN",
-                "bink_message_uid": "51bc9486-db0c-11ea-b8e5-acde48001122",
-                "bink_record_uid": "pym1834v0zrqxnrz5e3wjdglepko5972",
+                "message_uid": "51bc9486-db0c-11ea-b8e5-acde48001122",
+                "record_uid": "pym1834v0zrqxnrz5e3wjdglepko5972",
                 "timestamp": 1597071345,
                 "integration_service": "SYNC",
                 "status_code": 200,
@@ -95,8 +95,8 @@ def response_data():
                 "channel": "com.bink.wallet",
                 "membership_plan_slug": "some-plan-slug",
                 "handler_type": "JOIN",
-                "bink_message_uid": "51bc9486-db0c-11ea-b8e5-acde48001122",
-                "bink_record_uid": "pym1834v0zrqxnrz5e3wjdglepko5972",
+                "message_uid": "51bc9486-db0c-11ea-b8e5-acde48001122",
+                "record_uid": "pym1834v0zrqxnrz5e3wjdglepko5972",
                 "timestamp": 1597071345,
                 "integration_service": "SYNC",
                 "status_code": 200,
@@ -142,15 +142,15 @@ def test_audit_log_save_view(client, request_response_data, membership_url):
     request_data = request_response_data['audit_logs'][0]
     response_data = request_response_data['audit_logs'][1]
 
-    membership_request = MembershipRequest.objects.last()
+    membership_response = MembershipResponse.objects.last()
 
-    assert str(membership_request.bink_message_uid) == request_data['bink_message_uid']
-    assert membership_request.status_code == response_data['status_code']
+    assert str(membership_response.request.message_uid) == request_data['message_uid']
+    assert membership_response.status_code == response_data['status_code']
 
 
 @pytest.mark.django_db
 def test_audit_log_save_response(client, response_data, membership_url):
-    MembershipRequestFactory(bink_message_uid='51bc9486-db0c-11ea-b8e5-acde48001122')
+    MembershipRequestFactory(message_uid='51bc9486-db0c-11ea-b8e5-acde48001122')
 
     response = client.post(
         path=membership_url,
@@ -161,10 +161,10 @@ def test_audit_log_save_response(client, response_data, membership_url):
 
     assert response.status_code == status.HTTP_201_CREATED
 
-    membership_request = MembershipRequest.objects.last()
+    membership_response = MembershipResponse.objects.last()
     response_payload = response_data['audit_logs'][0]
 
-    assert membership_request.status_code == response_payload['status_code']
+    assert membership_response.status_code == response_payload['status_code']
 
 
 # ====== Auth Tests ======
