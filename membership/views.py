@@ -48,13 +48,7 @@ class MembershipRequestView(APIView):
                     logger.error(f'No request with the message_uid - {message_uid}')
                     raise e
 
-                log_data = {
-                    **log,
-                    'request': membership_request.id,
-                    'timestamp': datetime.fromtimestamp(log['timestamp']),
-                    'payload': json.dumps(log['payload']),
-                }
-
+                log_data = self.process_response(log, membership_request)
                 serializer = MembershipResponseSerializer(data=log_data)
 
             try:
@@ -89,3 +83,45 @@ class MembershipRequestView(APIView):
             SLUG_TO_CREDENTIAL_MAP[slug].get(k, k): v
             for k, v in credentials.items()
         }
+
+    def process_response(self, log: dict, membership_request: MembershipRequest) -> dict:
+        log_data = {
+            **log,
+            'request': membership_request.id,
+            'timestamp': datetime.fromtimestamp(log['timestamp']),
+            'payload': log['payload'],
+        }
+
+        if isinstance(log['payload'], dict):
+            flattened_log_data = {
+                **log_data,
+                **self.flatten_dict(log['payload']),
+                'payload': json.dumps(log['payload']),
+            }
+            log_data = self.map_credentials(flattened_log_data, log['membership_plan_slug'])
+
+        elif isinstance(log['payload'], str):
+            try:
+                flattened_log_data = {
+                    **log_data,
+                    **self.flatten_dict(json.loads(log['payload'])),
+                    'payload': log['payload'],
+                }
+                log_data = self.map_credentials(flattened_log_data, log['membership_plan_slug'])
+
+            except json.JSONDecodeError:
+                return log_data
+
+        # Update any fields that were not populated in the initial request e.g card_number
+        req_serializer = MembershipRequestSerializer(membership_request, data=log_data)
+        try:
+            if req_serializer.is_valid(raise_exception=True):
+                req_serializer.save()
+        except ValidationError as e:
+            logger.warning(
+                f"Error occurred when updating MembershipRequest (id={membership_request.id}) \n"
+                f"Data - {log_data} \n"
+                f"ValidationError - {e}"
+            )
+
+        return log_data
