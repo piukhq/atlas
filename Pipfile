@@ -11,6 +11,8 @@ arrow = "*"
 psycopg2-binary = "*"
 factory-boy = "*"
 pytest-django = "*"
+kombu = "*"
+celery = "*"
 
 [dev-packages]
 flake8 = "*"
