@@ -13,6 +13,7 @@ factory-boy = "*"
 pytest-django = "*"
 kombu = "*"
 celery = "*"
+django-prometheus = "*"
 
 [dev-packages]
 flake8 = "*"
