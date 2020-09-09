@@ -187,6 +187,7 @@ CELERY_BEAT_SCHEDULE = {
     },
 }
 
+PROMETHEUS_EXPORT_MIGRATIONS = False
 PROMETHEUS_LATENCY_BUCKETS = (.050, .125, .150, .2, .375, .450, .6, .8, 1.0, 2.0, 3.0, 4.0, 6.0, 8.0, 10.0, 12.0,
                               15.0, 20.0, 30.0, float("inf"))
 PROMETHEUS_PUSH_GATEWAY = "http://localhost:9100"
