@@ -11,6 +11,7 @@ arrow = "*"
 psycopg2-binary = "*"
 factory-boy = "*"
 pytest-django = "*"
+<<<<<<< HEAD
 kombu = "*"
 celery = "*"
 django-prometheus = "*"
