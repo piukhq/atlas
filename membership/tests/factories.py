@@ -46,7 +46,7 @@ class MembershipRequestFactory(factory.django.DjangoModelFactory):
     payload = {'payload': 'test'}
 
 
-class MembershipResponseFactory(factory.DjangoModelFactory):
+class MembershipResponseFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = MembershipResponse
 
