@@ -1,3 +1,5 @@
+from unittest import mock
+
 import pytest
 from rest_framework import status
 
@@ -9,6 +11,15 @@ from membership.tests.factories import MembershipRequestFactory
 
 
 # ====== Fixtures ======
+SLUG_TO_CREDENTIAL_MAP = {
+    "some-plan-slug": {
+        "forename": "first_name",
+        "surname": "last_name",
+        "customerNumber": "card_number",
+    },
+}
+
+
 @pytest.fixture
 def membership_url():
     return reverse('membership_audit')
@@ -127,6 +138,48 @@ def response_data():
     }
 
 
+@pytest.fixture
+def response_data_str_payload():
+    return {
+        "audit_logs": [
+            {
+                "audit_log_type": "RESPONSE",
+                "channel": "com.bink.wallet",
+                "membership_plan_slug": "some-plan-slug",
+                "handler_type": "JOIN",
+                "message_uid": "51bc9486-db0c-11ea-b8e5-acde48001122",
+                "record_uid": "pym1834v0zrqxnrz5e3wjdglepko5972",
+                "timestamp": 1597071345,
+                "integration_service": "SYNC",
+                "status_code": 200,
+                "payload": "Some string payload",
+                'response_body': 'OK'
+            }
+        ]
+    }
+
+
+@pytest.fixture
+def response_data_json_str_payload():
+    return {
+        "audit_logs": [
+            {
+                "audit_log_type": "RESPONSE",
+                "channel": "com.bink.wallet",
+                "membership_plan_slug": "some-plan-slug",
+                "handler_type": "JOIN",
+                "message_uid": "51bc9486-db0c-11ea-b8e5-acde48001122",
+                "record_uid": "pym1834v0zrqxnrz5e3wjdglepko5972",
+                "timestamp": 1597071345,
+                "integration_service": "SYNC",
+                "status_code": 200,
+                "payload": "{\"customerNumber\":\"12345\", \"email\": \"some@e.mail\"}",
+                'response_body': 'OK'
+            }
+        ]
+    }
+
+
 # ====== Tests ======
 @pytest.mark.django_db
 def test_audit_log_save_view(client, request_response_data, membership_url):
@@ -149,12 +202,39 @@ def test_audit_log_save_view(client, request_response_data, membership_url):
 
 
 @pytest.mark.django_db
-def test_audit_log_save_response(client, response_data, membership_url):
+@mock.patch("membership.views.SLUG_TO_CREDENTIAL_MAP", SLUG_TO_CREDENTIAL_MAP)
+def test_audit_log_save_response(client, response_data, response_data_json_str_payload,
+                                 response_data_str_payload, membership_url):
     MembershipRequestFactory(message_uid='51bc9486-db0c-11ea-b8e5-acde48001122')
+
+    for resp_data in [response_data, response_data_str_payload]:
+        response = client.post(
+            path=membership_url,
+            data=resp_data,
+            HTTP_AUTHORIZATION=ATLAS_SERVICE_AUTH_HEADER,
+            content_type='application/json'
+        )
+
+        assert response.status_code == status.HTTP_201_CREATED
+
+        membership_response = MembershipResponse.objects.last()
+        response_payload = response_data['audit_logs'][0]
+
+        assert membership_response.status_code == response_payload['status_code']
+
+
+@pytest.mark.django_db
+@mock.patch("membership.views.SLUG_TO_CREDENTIAL_MAP", SLUG_TO_CREDENTIAL_MAP)
+def test_audit_log_update_credentials_from_response(
+    client, response_data, response_data_json_str_payload, response_data_str_payload, membership_url
+):
+    membership_request = MembershipRequestFactory(message_uid='51bc9486-db0c-11ea-b8e5-acde48001122')
+    membership_request.card_number = ''
+    membership_request.save()
 
     response = client.post(
         path=membership_url,
-        data=response_data,
+        data=response_data_json_str_payload,
         HTTP_AUTHORIZATION=ATLAS_SERVICE_AUTH_HEADER,
         content_type='application/json'
     )
@@ -165,6 +245,10 @@ def test_audit_log_save_response(client, response_data, membership_url):
     response_payload = response_data['audit_logs'][0]
 
     assert membership_response.status_code == response_payload['status_code']
+
+    membership_request.refresh_from_db()
+    assert membership_request.card_number == "12345"
+    assert not membership_request.email == "some@e.mail"
 
 
 # ====== Auth Tests ======
