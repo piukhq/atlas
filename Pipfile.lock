@@ -409,7 +409,6 @@
             ],
             "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4' and python_version < '4'",
             "version": "==1.25.10"
-<<<<<<< HEAD
         },
         "vine": {
             "hashes": [
@@ -418,8 +417,6 @@
             ],
             "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
             "version": "==1.3.0"
-=======
->>>>>>> 08a0daf56e06c111b15527424ca849e93811b739
         }
     },
     "develop": {
