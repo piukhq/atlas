@@ -24,7 +24,7 @@ class MembershipRequestSerializer(serializers.ModelSerializer):
 
 
 class MembershipResponseSerializer(serializers.ModelSerializer):
-    payload = serializers.CharField(source="response_body", required=False)
+    payload = serializers.CharField(source="response_body", allow_blank=True, required=False)
 
     class Meta:
         model = MembershipResponse

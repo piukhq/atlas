@@ -207,7 +207,7 @@ def test_audit_log_save_response(client, response_data, response_data_json_str_p
                                  response_data_str_payload, membership_url):
     MembershipRequestFactory(message_uid='51bc9486-db0c-11ea-b8e5-acde48001122')
 
-    for resp_data in [response_data, response_data_str_payload]:
+    def save_resp_test():
         response = client.post(
             path=membership_url,
             data=resp_data,
@@ -221,6 +221,13 @@ def test_audit_log_save_response(client, response_data, response_data_json_str_p
         response_payload = response_data['audit_logs'][0]
 
         assert membership_response.status_code == response_payload['status_code']
+
+    for resp_data in [response_data, response_data_str_payload]:
+        save_resp_test()
+
+    # Test saving empty string for payload
+    response_data_str_payload['audit_logs'][0]['payload'] = ""
+    save_resp_test()
 
 
 @pytest.mark.django_db
