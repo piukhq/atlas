@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 import logging
 import os
 
+from celery.schedules import crontab
+
 from environment import env_var, read_env
 
 logging.basicConfig(format='%(process)s %(asctime)s %(levelname)s %(message)s')
@@ -37,6 +39,10 @@ DEBUG = env_var("ATLAS_DEBUG", False)
 
 ALLOWED_HOSTS = ["*"]
 
+CSRF_TRUSTED_ORIGINS = [
+    "127.0.0.1",
+    ".bink.com",
+]
 
 # Application definition
 
@@ -48,6 +54,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'membership',
     'transactions',
     'ubiquity_users',
 ]
@@ -150,3 +157,26 @@ TRANSACTION_REPORTS_CONTAINER = env_var('TRANSACTION_REPORTS_CONTAINER')
 
 SERVICE_API_KEY = 'F616CE5C88744DD52DB628FAD8B3D'
 ATLAS_SERVICE_AUTH_HEADER = 'Token {}'.format(SERVICE_API_KEY)
+
+# RABBITMQ DETAILS
+RABBITMQ_USER = env_var('RABBITMQ_USER')
+RABBITMQ_PASS = env_var('RABBITMQ_PASS')
+RABBITMQ_HOST = env_var('RABBITMQ_HOST')
+RABBITMQ_PORT = env_var('RABBITMQ_PORT')
+CELERY_BROKER_URL = f'amqp://{RABBITMQ_USER}:{RABBITMQ_PASS}@{RABBITMQ_HOST}:{RABBITMQ_PORT}//'
+
+# Transaction queue
+TRANSACTION_QUEUE = env_var('TRANSACTION_QUEUE', 'tx_matching')
+
+# Crontab
+CRONTAB_HOUR = env_var('CRONTAB_HOUR', 1)
+CRONTAB_MINUTES = env_var('CRONTAB_MINUTE', 0)
+
+# Celery
+CELERY_BEAT_SCHEDULE = {
+    # Checks for messages on tx_matching queue.
+    'check-for-transaction-message': {
+        'task': 'transactions.tasks.process_transactions',
+        'schedule': crontab(minute=CRONTAB_MINUTES, hour=f'*/{CRONTAB_HOUR}'),
+    },
+}
