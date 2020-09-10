@@ -102,10 +102,13 @@ class MembershipRequestView(APIView):
 
         elif isinstance(log['payload'], str):
             try:
+                payload_dict = {'payload': log['payload']}
+                if log['payload']:
+                    payload_dict.update(**self.flatten_dict(json.loads(log['payload'])))
+
                 flattened_log_data = {
                     **log_data,
-                    **self.flatten_dict(json.loads(log['payload'])),
-                    'payload': log['payload'],
+                    **payload_dict,
                 }
                 log_data = self.map_credentials(flattened_log_data, log['membership_plan_slug'])
 
