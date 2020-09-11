@@ -13,7 +13,7 @@ class MembershipRequestSerializer(serializers.ModelSerializer):
         for attribute in (
             "address_1", "address_2", "callback_url", "card_number", "channel", "city", "country", "county",
             "email", "first_name", "handler_type", "integration_service", "last_name", "membership_plan_slug",
-            "password", "record_uid", "title"
+            "password", "record_uid", "title", "date_of_birth"
         ):
             instance_attr = getattr(instance, attribute)
             if not instance_attr:

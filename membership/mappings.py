@@ -8,5 +8,6 @@ SLUG_TO_CREDENTIAL_MAP = {
     "iceland-bonus-card": {
         "town_city": "city",
         "phone1": "phone_number",
+        "dob": "date_of_birth"
     },
 }

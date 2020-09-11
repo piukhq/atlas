@@ -71,6 +71,7 @@ def test_request_serializer(request_data):
     assert data['email'] == request_data.email
     assert data['title'] == request_data.title
     assert data['first_name'] == request_data.first_name
+    assert data['date_of_birth'] == request_data.date_of_birth
     assert data['timestamp'] == datetime.strftime(request_data.timestamp, '%Y-%m-%dT%H:%M:%S.%fZ')
     assert data['integration_service'] == request_data.integration_service
     assert data['message_uid'] == str(request_data.message_uid)
