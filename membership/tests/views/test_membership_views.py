@@ -16,6 +16,7 @@ SLUG_TO_CREDENTIAL_MAP = {
         "forename": "first_name",
         "surname": "last_name",
         "customerNumber": "card_number",
+        "dob": "date_of_birth",
     },
 }
 
@@ -182,6 +183,7 @@ def response_data_json_str_payload():
 
 # ====== Tests ======
 @pytest.mark.django_db
+@mock.patch("membership.views.SLUG_TO_CREDENTIAL_MAP", SLUG_TO_CREDENTIAL_MAP)
 def test_audit_log_save_view(client, request_response_data, membership_url):
     response = client.post(
         path=membership_url,
