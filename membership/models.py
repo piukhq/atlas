@@ -7,6 +7,7 @@ class MembershipRequest(models.Model):
     title = models.CharField(max_length=250, blank=True)
     first_name = models.CharField(max_length=250, blank=True)
     last_name = models.CharField(max_length=250, blank=True, db_index=True)
+    date_of_birth = models.DateField(null=True, blank=True)
     postcode = models.CharField(max_length=250, blank=True)
     address_1 = models.CharField(max_length=250, blank=True)
     address_2 = models.CharField(max_length=250, blank=True)

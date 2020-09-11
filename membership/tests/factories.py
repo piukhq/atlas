@@ -28,6 +28,7 @@ class MembershipRequestFactory(factory.django.DjangoModelFactory):
     title = faker.prefix()
     first_name = faker.first_name()
     last_name = faker.last_name()
+    date_of_birth = faker.date()
     phone_number = faker.phone_number()
     password = faker.password()
     postcode = faker.postcode()
