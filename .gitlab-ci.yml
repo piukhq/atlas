@@ -20,7 +20,7 @@ complexity:
   stage: tests
   image: binkhq/python:3.8
   script:
-    - pip install xenon
+    - pip install xenon flake8_polyfill
     - xenon --max-average A --max-modules B --max-absolute B .
 
 flake8:
