@@ -4,6 +4,7 @@ SLUG_TO_CREDENTIAL_MAP = {
         "forename": "first_name",
         "surname": "last_name",
         "customerNumber": "card_number",
+        "phone": "phone_number",
     },
     "iceland-bonus-card": {
         "town_city": "city",
