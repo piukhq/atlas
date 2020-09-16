@@ -25,5 +25,5 @@ class ResponseAdmin(admin.ModelAdmin):
     readonly_fields = ('created_date',)
     list_display = ('id', 'timestamp', 'status_code')
     search_fields = ('id', 'timestamp', 'status_code', 'request__message_uid', 'request__record_uid',
-                     'membership_plan_slug', 'channel')
+                     'request__membership_plan_slug', 'request__channel')
     ordering = ('-created_date',)
