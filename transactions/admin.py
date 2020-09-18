@@ -14,14 +14,15 @@ class TransactionAdmin(admin.ModelAdmin):
 
 @admin.register(TransactionRequest)
 class TransactionRequestAdmin(admin.ModelAdmin):
-    list_display = ('customer_number', 'transaction_id', 'request_timestamp', 'message_uid', 'status_code')
+    list_display = ('customer_number', 'transaction_id', 'request_timestamp', 'message_uid', 'status_code', 'record_uid')
     search_fields = (
         'customer_number',
         'transaction_id',
         'request_timestamp',
         'message_uid',
+        'record_uid',
         'status_code',
         'membership_plan'
     )
-    list_filter = ('message_uid', 'customer_number', 'transaction_id')
+    list_filter = ('message_uid', 'customer_number', 'transaction_id', 'record_uid')
     ordering = ('-created_date',)
