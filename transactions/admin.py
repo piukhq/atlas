@@ -31,5 +31,5 @@ class TransactionRequestAdmin(admin.ModelAdmin):
         'status_code',
         'membership_plan'
     )
-    list_filter = ('message_uid', 'customer_number', 'transaction_id', 'record_uid')
+    list_filter = ('membership_plan', 'status_code')
     ordering = ('-created_date',)
