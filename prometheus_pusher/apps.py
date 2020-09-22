@@ -19,7 +19,7 @@ class PrometheusPushThread(threading.Thread):
     def __init__(self, pid: str):
         # Grouping key should not need pod id as prometheus
         # should tag that itself
-        self.grouping_key = {"instance": pid}
+        self.grouping_key = {"pid": pid}
         super().__init__()
 
     def run(self):
