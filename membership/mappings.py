@@ -1,3 +1,10 @@
+from typing import Tuple
+
+
+def fatface_card_number(publisher_list: list) -> Tuple[str, str]:
+    """Mapping function to extract card number from the response"""
+    return "card_number", publisher_list[0]["message"].split(":")[0]
+
 
 SLUG_TO_CREDENTIAL_MAP = {
     "harvey-nichols": {
@@ -11,4 +18,8 @@ SLUG_TO_CREDENTIAL_MAP = {
         "phone1": "phone_number",
         "dob": "date_of_birth"
     },
+    "fatface": {
+        "surname": "last_name",
+        "publisher": fatface_card_number,
+    }
 }
