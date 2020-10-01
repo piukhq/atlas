@@ -1,6 +1,9 @@
 from datetime import datetime, timedelta
 
 from azure.core.exceptions import ResourceExistsError
+from django.db import connections, DEFAULT_DB_ALIAS
+from django.db.utils import OperationalError
+from django.http import JsonResponse
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -77,3 +80,18 @@ class HealthCheck(APIView):
 
     def get(self, request):
         return Response()
+
+
+class ReadyzCheck(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request):
+        # Check DB
+        db_conn = connections[DEFAULT_DB_ALIAS]
+        try:
+            db_conn.cursor()
+        except OperationalError as err:
+            return JsonResponse({"error": f"Cannot connect to database: {err}"}, status=500)
+
+        return Response(status=204)

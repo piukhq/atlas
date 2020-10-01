@@ -53,13 +53,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_prometheus',
     'rest_framework',
+    'prometheus_pusher.apps.PrometheusPusherConfig',
     'membership',
     'transactions',
     'ubiquity_users',
 ]
 
 MIDDLEWARE = [
+    'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -67,6 +70,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
 
 ROOT_URLCONF = 'atlas.urls'
@@ -93,6 +97,8 @@ WSGI_APPLICATION = 'atlas.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
+# So apparently django_prometheus.db.backends.postgresql_psycopg2 is a db engine wrapper
+# to get metrics about db queries?
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -180,3 +186,9 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': crontab(minute=CRONTAB_MINUTES, hour=f'*/{CRONTAB_HOUR}'),
     },
 }
+
+PROMETHEUS_EXPORT_MIGRATIONS = False
+PROMETHEUS_LATENCY_BUCKETS = (.050, .125, .150, .2, .375, .450, .6, .8, 1.0, 2.0, 3.0, 4.0, 6.0, 8.0, 10.0, 12.0,
+                              15.0, 20.0, 30.0, float("inf"))
+PROMETHEUS_PUSH_GATEWAY = "http://localhost:9100"
+PROMETHEUS_JOB = "atlas"

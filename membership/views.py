@@ -79,10 +79,21 @@ class MembershipRequestView(APIView):
         if slug not in SLUG_TO_CREDENTIAL_MAP:
             return credentials
 
-        return {
-            SLUG_TO_CREDENTIAL_MAP[slug].get(k, k): v
-            for k, v in credentials.items()
-        }
+        mapped_credentials = {}
+        for provided_key, value in credentials.items():
+            mapped_key = SLUG_TO_CREDENTIAL_MAP[slug].get(provided_key, provided_key)
+
+            if callable(mapped_key):
+                try:
+                    mapped_key, value = mapped_key(value)
+                except Exception:
+                    logger.exception(
+                        f"Error caused by custom credential mapping function for {slug} - {mapped_key.__name__}"
+                    )
+
+            mapped_credentials[mapped_key] = value
+
+        return mapped_credentials
 
     def process_response(self, log: dict, membership_request: MembershipRequest) -> dict:
         log_data = {
