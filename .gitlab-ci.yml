@@ -2,7 +2,6 @@ stages:
   - tests
   - build
   - tagging
-  - statics
 
 tests:
   stage: tests
@@ -52,16 +51,6 @@ tag-develop:
   only:
     - develop
 
-statics-dev:
-  stage: statics
-  image: binkops.azurecr.io/kubedeployer:python38
-  environment: dev
-  script:
-    - bash collectstatic.sh
-    - ENVIRONMENT=dev deploystatic
-  only:
-    - develop
-
 build-master:
   stage: build
   image: docker:latest
@@ -84,16 +73,6 @@ tag-staging:
   only:
     - tags
 
-statics-staging:
-  stage: statics
-  image: binkops.azurecr.io/kubedeployer:python38
-  environment: staging
-  script:
-    - bash collectstatic.sh
-    - ENVIRONMENT=staging deploystatic
-  only:
-    - tags
-
 tag-prod:
   stage: tagging
   image: binkops.azurecr.io/tagbot:latest
@@ -104,12 +83,3 @@ tag-prod:
   only:
     - tags
 
-statics-prod:
-  stage: statics
-  image: binkops.azurecr.io/kubedeployer:python38
-  environment: prod
-  script:
-    - bash collectstatic.sh
-    - ENVIRONMENT=prod deploystatic
-  only:
-    - tags
