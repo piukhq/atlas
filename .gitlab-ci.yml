@@ -38,6 +38,7 @@ build-develop:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
   script:
     - docker build --pull -t "$CI_REGISTRY/atlas:latest" .
+    - docker run --rm -v /var/run/docker.sock:/var/run/docker.sock "$CI_REGISTRY/aqua-scanner:5.0" scan --local "$CI_REGISTRY/atlas:latest" --host https://aqua.uksouth.bink.sh:30001/ --user scanner --password $AQUA_PASSWORD --show-negligible --policies Bink --text
     - docker push "$CI_REGISTRY/atlas:latest"
   only:
     - develop
@@ -60,6 +61,7 @@ build-master:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
   script:
     - docker build --pull -t "$CI_REGISTRY/atlas:$CI_COMMIT_TAG" .
+    - docker run --rm -v /var/run/docker.sock:/var/run/docker.sock "$CI_REGISTRY/aqua-scanner:5.0" scan --local "$CI_REGISTRY/atlas:$CI_COMMIT_TAG" --host https://aqua.uksouth.bink.sh:30001/ --user scanner --password $AQUA_PASSWORD --show-negligible --policies Bink --text
     - docker push "$CI_REGISTRY/atlas:$CI_COMMIT_TAG"
   only:
     - tags
