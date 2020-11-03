@@ -1,7 +1,10 @@
 stages:
   - tests
+  - dev
+  - staging
   - build
-  - tagging
+  - preprod
+  - prod
 
 tests:
   stage: tests
@@ -29,34 +32,34 @@ flake8:
     - pip install flake8
     - flake8 *
 
-build-develop:
-  stage: build
-  image: docker:latest
-  services:
-    - docker:dind
+build-dev:
+  stage: dev
+  environment: 
+    name: dev
   before_script:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
   script:
-    - docker build --pull -t "$CI_REGISTRY/atlas:latest" .
-    - docker run --rm -v /var/run/docker.sock:/var/run/docker.sock "$CI_REGISTRY/aqua-scanner:5.0" scan --local "$CI_REGISTRY/atlas:latest" --host https://aqua.uksouth.bink.sh:30001/ --user scanner --password $AQUA_PASSWORD --show-negligible --policies Bink --text
-    - docker push "$CI_REGISTRY/atlas:latest"
+    - docker build --pull -t "$CI_REGISTRY/atlas:develop-$CI_COMMIT_SHORT_SHA" .
+    - docker run --rm -v /var/run/docker.sock:/var/run/docker.sock "$CI_REGISTRY/aqua-scanner:5.0" scan --local "$CI_REGISTRY/atlas:develop-$CI_COMMIT_SHORT_SHA" --host https://aqua.uksouth.bink.sh:30001/ --user scanner --password $AQUA_PASSWORD --show-negligible --policies Bink --text
+    - docker push "$CI_REGISTRY/atlas:develop-$CI_COMMIT_SHORT_SHA"
   only:
     - develop
 
-tag-develop:
-  stage: tagging
-  image: binkops.azurecr.io/tagbot:latest
-  environment: dev
+build-staging:
+  stage: staging
+  environment: 
+    name: staging
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
   script:
-    - tagbot --username "$CI_REGISTRY_USER" --password "$CI_REGISTRY_PASSWORD" --source "$CI_REGISTRY/atlas:latest" --tag "develop-$CI_COMMIT_SHORT_SHA"
+    - docker build --pull -t "$CI_REGISTRY/atlas:staging-$CI_COMMIT_SHORT_SHA" .
+    - docker run --rm -v /var/run/docker.sock:/var/run/docker.sock "$CI_REGISTRY/aqua-scanner:5.0" scan --local "$CI_REGISTRY/atlas:staging-$CI_COMMIT_SHORT_SHA" --host https://aqua.uksouth.bink.sh:30001/ --user scanner --password $AQUA_PASSWORD --show-negligible --policies Bink --text
+    - docker push "$CI_REGISTRY/atlas:staging-$CI_COMMIT_SHORT_SHA"
   only:
-    - develop
+    - staging
 
-build-master:
+build-tag:
   stage: build
-  image: docker:latest
-  services:
-    - docker:dind
   before_script:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
   script:
@@ -66,22 +69,24 @@ build-master:
   only:
     - tags
 
-tag-staging:
-  stage: tagging
+tag-preprod:
+  stage: preprod
   image: binkops.azurecr.io/tagbot:latest
-  environment: staging
+  environment: 
+    name: preprod
   script:
-    - tagbot --username "$CI_REGISTRY_USER" --password "$CI_REGISTRY_PASSWORD" --source "$CI_REGISTRY/atlas:$CI_COMMIT_TAG" --tag "staging-$CI_COMMIT_TAG"
+    - tagbot --username "$CI_REGISTRY_USER" --password "$CI_REGISTRY_PASSWORD" --source "$CI_REGISTRY/atlas:$CI_COMMIT_TAG" --tag "preprod-$CI_COMMIT_TAG"
+  when: manual
   only:
     - tags
 
 tag-prod:
-  stage: tagging
+  stage: prod
   image: binkops.azurecr.io/tagbot:latest
-  environment: prod
+  environment: 
+    name: prod
   script:
     - tagbot --username "$CI_REGISTRY_USER" --password "$CI_REGISTRY_PASSWORD" --source "$CI_REGISTRY/atlas:$CI_COMMIT_TAG" --tag "prod-$CI_COMMIT_TAG"
   when: manual
   only:
     - tags
-
