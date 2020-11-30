@@ -43,10 +43,19 @@ class Iceland(BaseMerchant):
             self.audit_list.append(transaction_data)
 
 
+class WasabiClub(BaseMerchant):
+    def process_message(self):
+        transaction_data = self.audit_data.copy()
+        transaction_data['customer_number'] = self.request['origin_id']
+        transaction_data['transaction_id'] = self.transactions['ReceiptNo']
+        self.audit_list.append(transaction_data)
+
+
 def get_merchant(message: dict):
     mapping = {
         'iceland-bonus-card': Iceland(message=message),
-        'harvey-nichols': HarveyNichols(message=message)
+        'harvey-nichols': HarveyNichols(message=message),
+        'wasabi-club': WasabiClub(message=message)
     }
 
     return mapping.get(message['scheme_provider'])
