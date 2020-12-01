@@ -21,5 +21,11 @@ SLUG_TO_CREDENTIAL_MAP = {
     "fatface": {
         "surname": "last_name",
         "publisher": fatface_card_number,
-    }
+    },
+    "wasabi-club": {
+        "FirstName": "first_name",
+        "LastName": "last_name",
+        "Email": "email",
+        "BirthDate": "date_of_birth",
+    },
 }
