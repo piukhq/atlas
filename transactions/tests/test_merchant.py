@@ -2,7 +2,7 @@ from json import dumps
 
 import pytest
 
-from transactions.merchant import get_merchant, HarveyNichols, Iceland
+from transactions.merchant import HarveyNichols, Iceland, WasabiClub, get_merchant
 
 
 # ====== Fixtures ======
@@ -76,6 +76,29 @@ def iceland_message():
     }
 
 
+@pytest.fixture
+def wasabi_message():
+    return {
+        "scheme_provider": "wasabi-club",
+        "response": "",
+        "request": {
+            "origin_id": "6A0A65106BAA57B864E70CDCC28337E15EDED8EB",
+            "ReceiptNo": "d482f186-df55-4da4-bc60-41890bf7a57d"
+        },
+        "status_code": 200,
+        "request_timestamp": "2020-09-02 13:44:14",
+        "response_timestamp": "2020-09-02 13:44:14",
+        "transactions": [
+            {
+                "transaction_id": "d482f186-df55-4da4-bc60-41890bf7a57d",
+                "user_id": 0,
+                "spend_amount": 1099,
+                "transaction_date": "2020-05-28 15:46:00"
+            }
+        ]
+    }
+
+
 # ====== Tests ======
 def test_get_harvey_nichols(harvey_nichols_message):
     merchant = get_merchant(message=harvey_nichols_message)
@@ -87,3 +110,9 @@ def test_get_iceland(iceland_message):
     merchant = get_merchant(message=iceland_message)
 
     assert isinstance(merchant, Iceland)
+
+
+def test_get_wasabi(wasabi_message):
+    merchant = get_merchant(message=wasabi_message)
+
+    assert isinstance(merchant, WasabiClub)
