@@ -29,7 +29,8 @@ class TransactionRequestAdmin(admin.ModelAdmin):
         'message_uid',
         'record_uid',
         'status_code',
-        'membership_plan'
+        'membership_plan',
+        'response'
     )
     list_filter = ('membership_plan', 'status_code')
     ordering = ('-created_date',)
