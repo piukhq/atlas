@@ -1,6 +1,6 @@
 from django.contrib import admin
 from transactions.models import Transaction, TransactionRequest
-from rangefilter.filter import DateRangeFilter, DateTimeRangeFilter
+from rangefilter.filter import DateRangeFilter
 
 
 @admin.register(Transaction)
