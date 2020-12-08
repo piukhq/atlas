@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'membership',
     'transactions',
     'ubiquity_users',
+    'rangefilter',
 ]
 
 MIDDLEWARE = [
