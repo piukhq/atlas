@@ -11,9 +11,10 @@ arrow = "*"
 psycopg2-binary = "*"
 factory-boy = "*"
 pytest-django = "*"
-kombu = "==4.6.11"
+kombu = "*"
 celery = "*"
 django-prometheus = "*"
+django-admin-rangefilter = "*"
 
 [dev-packages]
 flake8 = "*"
