@@ -13,9 +13,12 @@ def process_transactions():
     message = transaction_queue.read_message()
 
     if message:
-        merchant = get_merchant(message)
-        merchant.process_message()
+        try:
+            merchant = get_merchant(message)
+            merchant.process_message()
 
-        serializer = TransactionRequestSerializer(data=merchant.audit_list, many=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
+            serializer = TransactionRequestSerializer(data=merchant.audit_list, many=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+        except():
+            return
