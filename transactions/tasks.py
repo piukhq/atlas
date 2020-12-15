@@ -5,6 +5,7 @@ from celery import shared_task
 from transactions.merchant import get_merchant
 from transactions.serializers import TransactionRequestSerializer
 from message_queue.queue_agent import MessageQueue
+from atlas.settings import logger
 
 
 @shared_task
@@ -20,5 +21,5 @@ def process_transactions():
             serializer = TransactionRequestSerializer(data=merchant.audit_list, many=True)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-        except():
-            return
+        except Exception as ex:
+            logger.warning(f"process_transactions raised error: {repr(ex)}")
