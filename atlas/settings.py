@@ -184,7 +184,7 @@ CELERY_BEAT_SCHEDULE = {
     # Checks for messages on tx_matching queue.
     'check-for-transaction-message': {
         'task': 'transactions.tasks.process_transactions',
-        'schedule': crontab(minute=CRONTAB_MINUTES, hour=f'*'),
+        'schedule': crontab(minute=CRONTAB_MINUTES),
     },
 }
 
