@@ -13,8 +13,6 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 import logging
 import os
 
-from celery.schedules import crontab
-
 from environment import env_var, read_env
 
 logging.basicConfig(format='%(process)s %(asctime)s %(levelname)s %(message)s')
@@ -165,28 +163,16 @@ TRANSACTION_REPORTS_CONTAINER = env_var('TRANSACTION_REPORTS_CONTAINER')
 SERVICE_API_KEY = 'F616CE5C88744DD52DB628FAD8B3D'
 ATLAS_SERVICE_AUTH_HEADER = 'Token {}'.format(SERVICE_API_KEY)
 
-# RABBITMQ DETAILS
-RABBITMQ_USER = env_var('RABBITMQ_USER')
-RABBITMQ_PASS = env_var('RABBITMQ_PASS')
-RABBITMQ_HOST = env_var('RABBITMQ_HOST')
-RABBITMQ_PORT = env_var('RABBITMQ_PORT')
-CELERY_BROKER_URL = f'amqp://{RABBITMQ_USER}:{RABBITMQ_PASS}@{RABBITMQ_HOST}:{RABBITMQ_PORT}//'
+# AMQP connection details
+AMQP_USER = env_var("AMQP_USER", "guest")
+AMQP_PASSWORD = env_var("AMQP_PASSWORD", "guest")
+AMQP_HOST = env_var("AMQP_HOST", "localhost")
+AMQP_PORT = env_var("AMQP_PORT", "5672")
+AMQP_DSN = f"amqp://{AMQP_USER}:{AMQP_PASSWORD}@{AMQP_HOST}:{AMQP_PORT}//"
 
-# Transaction queue
+
+# Queue from which to read Harmonia transaction messages.
 TRANSACTION_QUEUE = env_var('TRANSACTION_QUEUE', 'tx_matching')
-
-# Crontab
-CRONTAB_HOUR = env_var('CRONTAB_HOUR', 1)
-CRONTAB_MINUTES = env_var('CRONTAB_MINUTE', 1)
-
-# Celery
-CELERY_BEAT_SCHEDULE = {
-    # Checks for messages on tx_matching queue.
-    'check-for-transaction-message': {
-        'task': 'transactions.tasks.process_transactions',
-        'schedule': crontab(),
-    },
-}
 
 PROMETHEUS_EXPORT_MIGRATIONS = False
 PROMETHEUS_LATENCY_BUCKETS = (.050, .125, .150, .2, .375, .450, .6, .8, 1.0, 2.0, 3.0, 4.0, 6.0, 8.0, 10.0, 12.0,

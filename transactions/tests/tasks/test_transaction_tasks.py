@@ -10,12 +10,6 @@ from transactions.models import TransactionRequest
 from transactions.tasks import process_transactions
 
 
-# ====== Fixtures ======
-@pytest.fixture
-def rabbit_settings(settings):
-    settings.CELERY_BROKER_URL = 'memory://'
-
-
 @pytest.fixture
 def harvey_nichols_transaction():
     return {
@@ -86,25 +80,10 @@ def iceland_transactions():
     }
 
 
-@pytest.fixture
-def add_harvey_nichols_message_to_queue(rabbit_settings, harvey_nichols_transaction):
-    with kombu.Connection(settings.CELERY_BROKER_URL) as conn:
-        simple_queue = conn.SimpleQueue(settings.TRANSACTION_QUEUE)
-        simple_queue.put(harvey_nichols_transaction)
-        simple_queue.close()
-
-
-@pytest.fixture
-def add_iceland_message_to_queue(rabbit_settings, iceland_transactions):
-    with kombu.Connection(settings.CELERY_BROKER_URL) as conn:
-        simple_queue = conn.SimpleQueue(settings.TRANSACTION_QUEUE)
-        simple_queue.put(iceland_transactions)
-        simple_queue.close()
-
 
 # ====== Tests ======
 @pytest.mark.django_db
-def test_process_harvey_transactions(rabbit_settings, add_harvey_nichols_message_to_queue, harvey_nichols_transaction):
+def test_process_harvey_transactions(harvey_nichols_transaction):
     process_transactions()
     transactions = harvey_nichols_transaction['transactions']
     transaction = TransactionRequest.objects.get(transaction_id=transactions[0]['transaction_id'])
@@ -116,7 +95,7 @@ def test_process_harvey_transactions(rabbit_settings, add_harvey_nichols_message
 
 
 @pytest.mark.django_db
-def test_process_iceland_transactions(rabbit_settings, add_iceland_message_to_queue, iceland_transactions):
+def test_process_iceland_transactions(iceland_transactions):
     process_transactions()
     transactions = TransactionRequest.objects.all()
     request_data = loads(iceland_transactions['request']['body'])['transactions']
