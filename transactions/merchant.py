@@ -58,4 +58,4 @@ def get_merchant(message: dict):
         'wasabi-club': WasabiClub(message=message)
     }
 
-    return mapping.get(message['scheme_provider'])
+    return mapping[message['scheme_provider']]
