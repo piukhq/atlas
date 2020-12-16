@@ -177,14 +177,14 @@ TRANSACTION_QUEUE = env_var('TRANSACTION_QUEUE', 'tx_matching')
 
 # Crontab
 CRONTAB_HOUR = env_var('CRONTAB_HOUR', 1)
-CRONTAB_MINUTES = env_var('CRONTAB_MINUTE', 0)
+CRONTAB_MINUTES = env_var('CRONTAB_MINUTE', 1)
 
 # Celery
 CELERY_BEAT_SCHEDULE = {
     # Checks for messages on tx_matching queue.
     'check-for-transaction-message': {
         'task': 'transactions.tasks.process_transactions',
-        'schedule': crontab(minute=CRONTAB_MINUTES, hour=f'*/{CRONTAB_HOUR}'),
+        'schedule': crontab(),
     },
 }
 
