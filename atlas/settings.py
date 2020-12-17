@@ -10,7 +10,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
-import logging
 import os
 
 import sentry_sdk
@@ -18,19 +17,10 @@ from sentry_sdk.integrations.django import DjangoIntegration
 
 from environment import env_var, read_env
 
-logging.basicConfig(format='%(process)s %(asctime)s %(levelname)s %(message)s')
-logger = logging.getLogger('bink')
-log_level = env_var("ATLAS_LOG_LEVEL", "DEBUG")
-logger.setLevel(getattr(logging, log_level.upper()))
-
 read_env()
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'k@k3(kx+bdm25skdw^&d88+2(5cg@54r6$kqbjyiycsub)-g#('
@@ -95,6 +85,29 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'atlas.wsgi.application'
 
+# Logging
+LOG_LEVEL = env_var("LOG_LEVEL", "DEBUG").upper()
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'default': {
+            'format': '{asctime} | {levelname} | {name}:{funcName}(L{lineno}) | {message}',
+            'style': '{',
+        }
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'default'
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': LOG_LEVEL,
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases

@@ -8,7 +8,7 @@ import kombu.mixins
 from transactions import tasks
 
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class Consumer(kombu.mixins.ConsumerMixin):
@@ -20,7 +20,7 @@ class Consumer(kombu.mixins.ConsumerMixin):
         return [Consumer(self.queues, callbacks=[self.on_message])]
 
     def on_message(self, body, message):
-        log.info("Received transaction message.")
+        logger.info("Received transaction message.")
         tasks.process_transaction(body)
         message.ack()
 
@@ -29,10 +29,10 @@ class Command(BaseCommand):
     help = "Consume auth transactions from the specified queue"
 
     def handle(self, *args, **options):
-        self.stdout.write(f"Consuming from queue: {settings.TRANSACTION_QUEUE}")
+        logger.info(f"Consuming from queue: {settings.TRANSACTION_QUEUE}")
         conn = kombu.Connection(settings.AMQP_DSN)
 
         try:
             Consumer(conn).run()
         except KeyboardInterrupt:
-            self.stdout.write("Shutting down.")
+            logger.info("Shutting down.")
