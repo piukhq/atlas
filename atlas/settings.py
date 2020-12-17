@@ -13,6 +13,9 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 import logging
 import os
 
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+
 from environment import env_var, read_env
 
 logging.basicConfig(format='%(process)s %(asctime)s %(levelname)s %(message)s')
@@ -170,10 +173,24 @@ AMQP_HOST = env_var("AMQP_HOST", "localhost")
 AMQP_PORT = env_var("AMQP_PORT", "5672")
 AMQP_DSN = f"amqp://{AMQP_USER}:{AMQP_PASSWORD}@{AMQP_HOST}:{AMQP_PORT}//"
 
-
 # Queue from which to read Harmonia transaction messages.
 TRANSACTION_QUEUE = env_var('TRANSACTION_QUEUE', 'tx_matching')
 
+# Sentry project data source name.
+# https://docs.sentry.io/quickstart/#about-the-dsn
+SENTRY_DSN = env_var("TXM_SENTRY_DSN")
+
+# Environment identifier to file issues under in Sentry.
+SENTRY_ENV = env_var("TXM_SENTRY_ENV", default="unset").lower()
+
+if SENTRY_DSN is not None:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        environment=SENTRY_ENV,
+        integrations=[DjangoIntegration()],
+    )
+
+# Prometheus connection details
 PROMETHEUS_EXPORT_MIGRATIONS = False
 PROMETHEUS_LATENCY_BUCKETS = (.050, .125, .150, .2, .375, .450, .6, .8, 1.0, 2.0, 3.0, 4.0, 6.0, 8.0, 10.0, 12.0,
                               15.0, 20.0, 30.0, float("inf"))
