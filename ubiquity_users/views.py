@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timedelta
 
 from azure.core.exceptions import ResourceExistsError
@@ -10,10 +11,12 @@ from rest_framework.views import APIView
 
 from atlas.csv_writer import write_to_csv
 from atlas.decorators import token_check
-from atlas.settings import DELETED_UBIQUITY_USERS_CONTAINER, logger
+from atlas.settings import DELETED_UBIQUITY_USERS_CONTAINER
 from atlas.storage import create_blob_from_csv
 from ubiquity_users.models import User
 from ubiquity_users.serializers import UserSerializer
+
+logger = logging.getLogger(__name__)
 
 
 class UserSaveView(APIView):

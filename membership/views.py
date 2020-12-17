@@ -1,4 +1,5 @@
 import json
+import logging
 from datetime import datetime
 
 from rest_framework import status
@@ -8,12 +9,13 @@ from rest_framework.views import APIView
 
 from .mappings import SLUG_TO_CREDENTIAL_MAP
 from .models import MembershipRequest
-from atlas.settings import logger
 from membership.serializers import MembershipRequestSerializer, MembershipResponseSerializer
 from membership.authentication import ServiceAuthentication
 
 
 REQUEST = 'REQUEST'
+
+logger = logging.getLogger(__name__)
 
 
 class MembershipRequestView(APIView):

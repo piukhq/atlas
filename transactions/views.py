@@ -1,6 +1,5 @@
-from __future__ import unicode_literals
-
 import datetime
+import logging
 
 from azure.core.exceptions import ResourceNotFoundError
 from rest_framework import status
@@ -9,10 +8,13 @@ from rest_framework.views import APIView
 
 from atlas.csv_writer import write_to_csv
 from atlas.decorators import token_check
-from atlas.settings import logger, TRANSACTION_REPORTS_CONTAINER
+from atlas.settings import TRANSACTION_REPORTS_CONTAINER
 from atlas.storage import create_blob_from_csv
 from transactions.models import Transaction
 from transactions.serializers import TransactionSerializer
+
+
+logger = logging.getLogger(__name__)
 
 
 class TransactionBlobView(APIView):
