@@ -178,10 +178,10 @@ TRANSACTION_QUEUE = env_var('TRANSACTION_QUEUE', 'tx_matching')
 
 # Sentry project data source name.
 # https://docs.sentry.io/quickstart/#about-the-dsn
-SENTRY_DSN = env_var("TXM_SENTRY_DSN")
+SENTRY_DSN = env_var("SENTRY_DSN")
 
 # Environment identifier to file issues under in Sentry.
-SENTRY_ENV = env_var("TXM_SENTRY_ENV", default="unset").lower()
+SENTRY_ENV = env_var("SENTRY_ENV", default="unset").lower()
 
 if SENTRY_DSN is not None:
     sentry_sdk.init(
