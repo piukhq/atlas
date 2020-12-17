@@ -32,7 +32,7 @@ class HarveyNichols(BaseMerchant):
 
 class Iceland(BaseMerchant):
     def process_message(self):
-        request_body = loads(self.request['body'])
+        request_body = loads(self.request['json'])
 
         for transaction in request_body['transactions']:
             transaction_data = self.audit_data.copy()
