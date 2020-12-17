@@ -1,11 +1,15 @@
+import logging
+
 import arrow
 from azure.core.exceptions import ResourceNotFoundError
 from azure.storage.blob import BlobServiceClient
 from rest_framework.response import Response
 
-from atlas.settings import BLOB_STORAGE_DSN, logger
+from atlas.settings import BLOB_STORAGE_DSN
 
 bbs = None
+
+logger = logging.getLogger(__name__)
 
 
 def create_blob_from_csv(csv, file_name=None, base_directory=None, container=None):
