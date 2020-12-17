@@ -1,6 +1,3 @@
-from json import loads
-
-
 class BaseMerchant:
     def __init__(self, message: dict):
         self.scheme_name = message['scheme_provider']
@@ -32,7 +29,7 @@ class HarveyNichols(BaseMerchant):
 
 class Iceland(BaseMerchant):
     def process_message(self):
-        request_body = loads(self.request['json'])
+        request_body = self.request['json']
 
         for transaction in request_body['transactions']:
             transaction_data = self.audit_data.copy()

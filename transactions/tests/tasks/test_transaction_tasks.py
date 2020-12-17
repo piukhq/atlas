@@ -1,5 +1,4 @@
 from datetime import datetime
-import json
 
 import kombu
 import pytest
@@ -48,7 +47,7 @@ def iceland_transactions():
         "scheme_provider": "iceland-bonus-card",
         "response": "",
         "request": {
-            "json": json.dumps({
+            "json": {
                 "message_uid": "39dd9217-af99-443a-ab52-fcc248af8d29",
                 "transactions": [
                     {
@@ -64,7 +63,7 @@ def iceland_transactions():
                         "transaction_id": "11a87408-d4d3-451b-b916-11a4b7c964a1"
                     }
                 ]
-            })
+            }
         },
         "status_code": 200,
         "request_timestamp": "2020-08-27 15:23:13",
@@ -133,7 +132,7 @@ def test_process_iceland_transactions(amqp_settings, add_iceland_message_to_queu
     process_transaction(queue_message)
 
     transactions = TransactionRequest.objects.all()
-    request_data = json.loads(iceland_transactions['request']['json'])['transactions']
+    request_data = iceland_transactions['request']['json']['transactions']
 
     assert len(transactions) == 2
 
