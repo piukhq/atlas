@@ -12,14 +12,18 @@ psycopg2-binary = "*"
 factory-boy = "*"
 pytest-django = "*"
 kombu = "*"
-celery = "*"
 django-prometheus = "*"
 django-admin-rangefilter = "*"
+sentry-sdk = "*"
 
 [dev-packages]
 flake8 = "*"
 coverage = "*"
 ipdb = "*"
+black = "==20.8b1"
+mypy = "*"
+pytest = "*"
+ptpython = "*"
 
 [requires]
 python_version = "3.8"

@@ -1,25 +1,17 @@
-from django.conf import settings
-
-from celery import shared_task
+import sentry_sdk
 
 from transactions.merchant import get_merchant
 from transactions.serializers import TransactionRequestSerializer
-from message_queue.queue_agent import MessageQueue
-from atlas.settings import logger
 
 
-@shared_task
-def process_transactions():
-    transaction_queue = MessageQueue(settings.TRANSACTION_QUEUE)
-    message = transaction_queue.read_message()
+def process_transaction(message: dict):
+    try:
+        merchant = get_merchant(message)
+        merchant.process_message()
 
-    if message:
-        try:
-            merchant = get_merchant(message)
-            merchant.process_message()
-
-            serializer = TransactionRequestSerializer(data=merchant.audit_list, many=True)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-        except Exception as ex:
-            logger.warning(f"process_transactions raised error: {repr(ex)}")
+        serializer = TransactionRequestSerializer(data=merchant.audit_list, many=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+    except Exception:
+        # we capture manually as we don't want these failures to crash the process
+        sentry_sdk.capture_exception()

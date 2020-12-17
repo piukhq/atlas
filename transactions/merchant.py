@@ -47,7 +47,7 @@ class WasabiClub(BaseMerchant):
     def process_message(self):
         transaction_data = self.audit_data.copy()
         transaction_data['customer_number'] = self.request['origin_id']
-        transaction_data['transaction_id'] = self.transactions['ReceiptNo']
+        transaction_data['transaction_id'] = self.request['ReceiptNo']
         self.audit_list.append(transaction_data)
 
 
