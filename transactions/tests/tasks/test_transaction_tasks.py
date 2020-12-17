@@ -48,7 +48,7 @@ def iceland_transactions():
         "scheme_provider": "iceland-bonus-card",
         "response": "",
         "request": {
-            "body": json.dumps({
+            "json": json.dumps({
                 "message_uid": "39dd9217-af99-443a-ab52-fcc248af8d29",
                 "transactions": [
                     {
@@ -133,7 +133,7 @@ def test_process_iceland_transactions(amqp_settings, add_iceland_message_to_queu
     process_transaction(queue_message)
 
     transactions = TransactionRequest.objects.all()
-    request_data = json.loads(iceland_transactions['request']['body'])['transactions']
+    request_data = json.loads(iceland_transactions['request']['json'])['transactions']
 
     assert len(transactions) == 2
 
