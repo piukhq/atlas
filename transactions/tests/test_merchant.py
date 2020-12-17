@@ -38,7 +38,7 @@ def iceland_message():
         "scheme_provider": "iceland-bonus-card",
         "response": "",
         "request": {
-            "body": dumps({
+            "json": dumps({
                 "message_uid": "39dd9217-af99-443a-ab52-fcc248af8d29",
                 "transactions": [
                     {
