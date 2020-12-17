@@ -102,17 +102,17 @@ def wasabi_message():
 # ====== Tests ======
 def test_get_harvey_nichols(harvey_nichols_message):
     merchant = get_merchant(message=harvey_nichols_message)
-
+    merchant.process_message()
     assert isinstance(merchant, HarveyNichols)
 
 
 def test_get_iceland(iceland_message):
     merchant = get_merchant(message=iceland_message)
-
+    merchant.process_message()
     assert isinstance(merchant, Iceland)
 
 
 def test_get_wasabi(wasabi_message):
     merchant = get_merchant(message=wasabi_message)
-
+    merchant.process_message()
     assert isinstance(merchant, WasabiClub)
