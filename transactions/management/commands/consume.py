@@ -20,7 +20,7 @@ class Consumer(kombu.mixins.ConsumerMixin):
         return [Consumer(self.queues, callbacks=[self.on_message])]
 
     def on_message(self, body, message):
-        log.info(f"Received transaction message.")
+        log.info("Received transaction message.")
         tasks.process_transaction(body)
         message.ack()
 

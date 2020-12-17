@@ -1,13 +1,19 @@
 from datetime import datetime
-from json import dumps, loads
+import json
 
 import kombu
 import pytest
-
 from django.conf import settings
 
 from transactions.models import TransactionRequest
-from transactions.tasks import process_transactions
+from transactions.tasks import process_transaction
+
+# ====== Fixtures ======
+
+
+@pytest.fixture
+def amqp_settings(settings):
+    settings.AMQP_DSN = 'memory://'
 
 
 @pytest.fixture
@@ -42,7 +48,7 @@ def iceland_transactions():
         "scheme_provider": "iceland-bonus-card",
         "response": "",
         "request": {
-            "body": dumps({
+            "body": json.dumps({
                 "message_uid": "39dd9217-af99-443a-ab52-fcc248af8d29",
                 "transactions": [
                     {
@@ -80,11 +86,39 @@ def iceland_transactions():
     }
 
 
+@pytest.fixture
+def add_harvey_nichols_message_to_queue(amqp_settings, harvey_nichols_transaction):
+    with kombu.Connection(settings.AMQP_DSN) as conn:
+        simple_queue = conn.SimpleQueue(settings.TRANSACTION_QUEUE)
+        simple_queue.put(harvey_nichols_transaction)
+        simple_queue.close()
+
+
+@pytest.fixture
+def add_iceland_message_to_queue(amqp_settings, iceland_transactions):
+    with kombu.Connection(settings.AMQP_DSN) as conn:
+        simple_queue = conn.SimpleQueue(settings.TRANSACTION_QUEUE)
+        simple_queue.put(iceland_transactions)
+        simple_queue.close()
+
+
+@pytest.fixture
+def queue_message(amqp_settings):
+    with kombu.Connection(settings.AMQP_DSN) as conn:
+        simple_queue = conn.SimpleQueue(settings.TRANSACTION_QUEUE)
+        yield simple_queue.get().payload
+        simple_queue.close()
+
 
 # ====== Tests ======
 @pytest.mark.django_db
-def test_process_harvey_transactions(harvey_nichols_transaction):
-    process_transactions()
+def test_process_harvey_transactions(
+    amqp_settings,
+    add_harvey_nichols_message_to_queue,
+    queue_message,
+    harvey_nichols_transaction
+):
+    process_transaction(queue_message)
     transactions = harvey_nichols_transaction['transactions']
     transaction = TransactionRequest.objects.get(transaction_id=transactions[0]['transaction_id'])
 
@@ -95,10 +129,11 @@ def test_process_harvey_transactions(harvey_nichols_transaction):
 
 
 @pytest.mark.django_db
-def test_process_iceland_transactions(iceland_transactions):
-    process_transactions()
+def test_process_iceland_transactions(amqp_settings, add_iceland_message_to_queue, queue_message, iceland_transactions):
+    process_transaction(queue_message)
+
     transactions = TransactionRequest.objects.all()
-    request_data = loads(iceland_transactions['request']['body'])['transactions']
+    request_data = json.loads(iceland_transactions['request']['body'])['transactions']
 
     assert len(transactions) == 2
 
