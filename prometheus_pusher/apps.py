@@ -9,7 +9,7 @@ from django.conf import settings
 from prometheus_client import push_to_gateway
 from prometheus_client.registry import REGISTRY
 
-logger = logging.getLogger('bink')
+logger = logging.getLogger(__name__)
 
 
 class PrometheusPushThread(threading.Thread):
@@ -34,7 +34,6 @@ class PrometheusPushThread(threading.Thread):
                     grouping_key=self.grouping_key,
                     timeout=self.PUSH_TIMEOUT
                 )
-                logger.info("Pushed metrics to gateway")
             except (ConnectionRefusedError, urllib.error.URLError):
                 logger.warning("Failed to push metrics, connection refused")
             except Exception as err:

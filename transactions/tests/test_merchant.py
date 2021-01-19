@@ -1,5 +1,3 @@
-from json import dumps
-
 import pytest
 
 from transactions.merchant import HarveyNichols, Iceland, WasabiClub, get_merchant
@@ -38,7 +36,7 @@ def iceland_message():
         "scheme_provider": "iceland-bonus-card",
         "response": "",
         "request": {
-            "body": dumps({
+            "json": {
                 "message_uid": "39dd9217-af99-443a-ab52-fcc248af8d29",
                 "transactions": [
                     {
@@ -54,7 +52,7 @@ def iceland_message():
                         "transaction_id": "11a87408-d4d3-451b-b916-11a4b7c964a1"
                     }
                 ]
-            })
+            }
         },
         "status_code": 200,
         "request_timestamp": "2020-08-27 15:23:13",
@@ -102,17 +100,17 @@ def wasabi_message():
 # ====== Tests ======
 def test_get_harvey_nichols(harvey_nichols_message):
     merchant = get_merchant(message=harvey_nichols_message)
-
+    merchant.process_message()
     assert isinstance(merchant, HarveyNichols)
 
 
 def test_get_iceland(iceland_message):
     merchant = get_merchant(message=iceland_message)
-
+    merchant.process_message()
     assert isinstance(merchant, Iceland)
 
 
 def test_get_wasabi(wasabi_message):
     merchant = get_merchant(message=wasabi_message)
-
+    merchant.process_message()
     assert isinstance(merchant, WasabiClub)

@@ -1,6 +1,3 @@
-from json import loads
-
-
 class BaseMerchant:
     def __init__(self, message: dict):
         self.scheme_name = message['scheme_provider']
@@ -32,7 +29,7 @@ class HarveyNichols(BaseMerchant):
 
 class Iceland(BaseMerchant):
     def process_message(self):
-        request_body = loads(self.request['body'])
+        request_body = self.request['json']
 
         for transaction in request_body['transactions']:
             transaction_data = self.audit_data.copy()
@@ -47,7 +44,7 @@ class WasabiClub(BaseMerchant):
     def process_message(self):
         transaction_data = self.audit_data.copy()
         transaction_data['customer_number'] = self.request['origin_id']
-        transaction_data['transaction_id'] = self.transactions['ReceiptNo']
+        transaction_data['transaction_id'] = self.request['ReceiptNo']
         self.audit_list.append(transaction_data)
 
 
@@ -58,4 +55,4 @@ def get_merchant(message: dict):
         'wasabi-club': WasabiClub(message=message)
     }
 
-    return mapping.get(message['scheme_provider'])
+    return mapping[message['scheme_provider']]

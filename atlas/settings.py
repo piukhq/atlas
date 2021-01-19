@@ -10,26 +10,17 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
-import logging
 import os
 
-from celery.schedules import crontab
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 
 from environment import env_var, read_env
-
-logging.basicConfig(format='%(process)s %(asctime)s %(levelname)s %(message)s')
-logger = logging.getLogger('bink')
-log_level = env_var("ATLAS_LOG_LEVEL", "DEBUG")
-logger.setLevel(getattr(logging, log_level.upper()))
 
 read_env()
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'k@k3(kx+bdm25skdw^&d88+2(5cg@54r6$kqbjyiycsub)-g#('
@@ -59,6 +50,7 @@ INSTALLED_APPS = [
     'membership',
     'transactions',
     'ubiquity_users',
+    'rangefilter',
 ]
 
 MIDDLEWARE = [
@@ -93,6 +85,29 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'atlas.wsgi.application'
 
+# Logging
+LOG_LEVEL = env_var("LOG_LEVEL", "DEBUG").upper()
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'default': {
+            'format': '{asctime} | {levelname} | {name}:{funcName}(L{lineno}) | {message}',
+            'style': '{',
+        }
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'default'
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': LOG_LEVEL,
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
@@ -164,29 +179,31 @@ TRANSACTION_REPORTS_CONTAINER = env_var('TRANSACTION_REPORTS_CONTAINER')
 SERVICE_API_KEY = 'F616CE5C88744DD52DB628FAD8B3D'
 ATLAS_SERVICE_AUTH_HEADER = 'Token {}'.format(SERVICE_API_KEY)
 
-# RABBITMQ DETAILS
-RABBITMQ_USER = env_var('RABBITMQ_USER')
-RABBITMQ_PASS = env_var('RABBITMQ_PASS')
-RABBITMQ_HOST = env_var('RABBITMQ_HOST')
-RABBITMQ_PORT = env_var('RABBITMQ_PORT')
-CELERY_BROKER_URL = f'amqp://{RABBITMQ_USER}:{RABBITMQ_PASS}@{RABBITMQ_HOST}:{RABBITMQ_PORT}//'
+# AMQP connection details
+AMQP_USER = env_var("AMQP_USER", "guest")
+AMQP_PASSWORD = env_var("AMQP_PASSWORD", "guest")
+AMQP_HOST = env_var("AMQP_HOST", "localhost")
+AMQP_PORT = env_var("AMQP_PORT", "5672")
+AMQP_DSN = f"amqp://{AMQP_USER}:{AMQP_PASSWORD}@{AMQP_HOST}:{AMQP_PORT}//"
 
-# Transaction queue
+# Queue from which to read Harmonia transaction messages.
 TRANSACTION_QUEUE = env_var('TRANSACTION_QUEUE', 'tx_matching')
 
-# Crontab
-CRONTAB_HOUR = env_var('CRONTAB_HOUR', 1)
-CRONTAB_MINUTES = env_var('CRONTAB_MINUTE', 0)
+# Sentry project data source name.
+# https://docs.sentry.io/quickstart/#about-the-dsn
+SENTRY_DSN = env_var("SENTRY_DSN")
 
-# Celery
-CELERY_BEAT_SCHEDULE = {
-    # Checks for messages on tx_matching queue.
-    'check-for-transaction-message': {
-        'task': 'transactions.tasks.process_transactions',
-        'schedule': crontab(minute=CRONTAB_MINUTES, hour=f'*/{CRONTAB_HOUR}'),
-    },
-}
+# Environment identifier to file issues under in Sentry.
+SENTRY_ENV = env_var("SENTRY_ENV", default="unset").lower()
 
+if SENTRY_DSN is not None:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        environment=SENTRY_ENV,
+        integrations=[DjangoIntegration()],
+    )
+
+# Prometheus connection details
 PROMETHEUS_EXPORT_MIGRATIONS = False
 PROMETHEUS_LATENCY_BUCKETS = (.050, .125, .150, .2, .375, .450, .6, .8, 1.0, 2.0, 3.0, 4.0, 6.0, 8.0, 10.0, 12.0,
                               15.0, 20.0, 30.0, float("inf"))
