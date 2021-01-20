@@ -1,15 +1,15 @@
 class BaseMerchant:
     def __init__(self, message: dict):
         self.scheme_name = message['scheme_provider']
-        self.request = message.get('request')
+        self.request = message['audit_data'].get('request')
         self.transactions = message['transactions']
 
         self.audit_data = {
-            'status_code': message['status_code'],
-            'request_timestamp': message['request_timestamp'],
-            'response_timestamp': message['response_timestamp'],
+            'status_code': message['audit_data'].get('request').get('status_code'),
+            'request_timestamp': message['audit_data'].get('request').get('timestamp'),
+            'response_timestamp': message['audit_data'].get('response').get('timestamp'),
             'request': self.request,
-            'response': message['response'],
+            'response': message['audit_data'].get('response'),
             'membership_plan': self.scheme_name
         }
 
@@ -29,9 +29,8 @@ class HarveyNichols(BaseMerchant):
 
 class Iceland(BaseMerchant):
     def process_message(self):
-        request_body = self.request['json']
 
-        for transaction in request_body['transactions']:
+        for transaction in self['transactions']:
             transaction_data = self.audit_data.copy()
             transaction_data['message_uid'] = request_body['message_uid']
             transaction_data['transaction_id'] = transaction['transaction_id']
