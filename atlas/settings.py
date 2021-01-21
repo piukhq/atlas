@@ -195,6 +195,7 @@ SENTRY_DSN = env_var("SENTRY_DSN")
 
 # Environment identifier to file issues under in Sentry.
 SENTRY_ENV = env_var("SENTRY_ENV", default="unset").lower()
+SENTRY_DSN = None
 
 if SENTRY_DSN is not None:
     sentry_sdk.init(
