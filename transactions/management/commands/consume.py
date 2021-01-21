@@ -26,6 +26,7 @@ class Consumer(kombu.mixins.ConsumerMixin):
 
         try:
             tasks.process_transaction(body)
+            message.ack()
         except Exception as ex:
             # we capture manually as we don't want these failures to crash the process
             event_id = sentry_sdk.capture_exception()
@@ -33,8 +34,6 @@ class Consumer(kombu.mixins.ConsumerMixin):
                 f"tasks.process_transaction raised exception: {repr(ex)}. "
                 f"Sentry event ID: {event_id}"
             )
-
-        message.ack()
 
 
 class Command(BaseCommand):
