@@ -255,13 +255,16 @@ class TestExportTransaction(APITestCase):
         audit_data_serializer = AuditDataSerializer(data=self.export_transaction_data)
         audit_data_serializer.is_valid(raise_exception=True)
         instance = audit_data_serializer.save()
+        transactions = AuditData.objects.all()
 
+        assert len(transactions) == 1
         assert instance.audit_data["request"] == self.export_transaction_data["audit_data"]["request"]
         assert instance.audit_data["response"] == self.export_transaction_data["audit_data"]["response"]
         export_transactions = instance.exporttransaction_set.all()
         assert len(export_transactions) == 2
         assert export_transactions[0].provider_slug == "iceland-bonus-card"
         assert export_transactions[1].provider_slug == "iceland-bonus-card"
+
 
 
 class TestTransactionTask(APITestCase):
@@ -315,6 +318,7 @@ class TestTransactionTask(APITestCase):
         process_transaction(transaction_message)
         transactions = AuditData.objects.all()
 
+        assert len(transactions) == 1
         assert transactions[0]
         assert transactions[0].audit_data["request"] == self.export_transaction_data["audit_data"]["request"]
         assert transactions[0].audit_data["response"] == self.export_transaction_data["audit_data"]["response"]
