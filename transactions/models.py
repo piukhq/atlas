@@ -40,15 +40,15 @@ class TransactionRequest(models.Model):
 
 class AuditData(models.Model):
     """
-    Audit data for an export received from the transaction matching engine
-    e.g. scheme, transactions, requests, responses, file location, in JSON format
+    Audit data for an export transaction received from the transaction matching engine
+    e.g. requests, responses, file names, in JSON format
     """
     audit_data = models.JSONField()
 
 
 class ExportTransaction(models.Model):
     """
-    Transaction export audit
+    Export transaction(s) received from the transaction matching engine
     """
     transaction_id = models.CharField(max_length=100, db_index=True)
     user_id = models.CharField(max_length=30, blank=True)
