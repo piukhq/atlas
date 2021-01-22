@@ -266,7 +266,6 @@ class TestExportTransaction(APITestCase):
         assert export_transactions[1].provider_slug == "iceland-bonus-card"
 
 
-
 class TestTransactionTask(APITestCase):
 
     # MER-645: the new-style transaction data from Harmonia
