@@ -9,6 +9,7 @@ from rest_framework.test import APITestCase
 
 from atlas.settings import ATLAS_SERVICE_AUTH_HEADER
 from transactions.models import Transaction
+from transactions.serializers import AuditDataSerializer
 from transactions.views import get_transactions
 
 
@@ -210,3 +211,53 @@ class TestSaveEndpoint(APITestCase):
         resp = self.client.post(self.url, self.payload, format='json')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(Transaction.objects.count(), 1)
+
+
+class TestExportTransaction(APITestCase):
+
+    # MER-645: the new-style transaction data from Harmonia
+    def setUp(self):
+        self.export_transaction_data = {
+            "provider_slug": "iceland-bonus-card",
+            "transactions": [
+                {
+                    "transaction_id": 1,
+                    "user_id": 0,
+                    "spend_amount": 1222,
+                    "transaction_date": "2020-10-27 15:01:00",
+                    "loyalty_identifier": "88899966",
+                    "record_uid": None,
+                },
+                {
+                    "transaction_id": 2,
+                    "user_id": 0,
+                    "spend_amount": 1222,
+                    "transaction_date": "2020-10-27 15:01:00",
+                    "loyalty_identifier": "99999999",
+                    "record_uid": "a544642d-012f-45cd-88c6-a436df62924f",
+                },
+            ],
+            "audit_data": {
+                "request": {
+                    "body": ('{"message_uid": "e0dc4d6b-1184-4b70-909b-b2472efae96a", "transactions": '
+                             '[{"record_uid": "v8vzj4ykl7g28d6mln9x05m31qpeor27", "merchant_scheme_id1": '
+                             '"v8vzj4ykl7g28d6mln9x05m31qpeor27", "merchant_scheme_id2": "88899966", '
+                             '"transaction_id": "a544642d-012f-45cd-88c6-a436df62924f"}]}'),
+                    "timestamp": "2021-01-18 14:46:14",
+                },
+                "response": {"body": "", "status_code": 200, "timestamp": "2021-01-18 14:46:14"},
+            },
+        }
+
+    def test_auditdata_request_is_valid(self):
+        audit_data_serializer = AuditDataSerializer(data=self.export_transaction_data)
+        audit_data_serializer.is_valid(raise_exception=True)
+        instance = audit_data_serializer.save()
+
+        assert instance.audit_data["request"] == self.export_transaction_data["audit_data"]["request"]
+        assert instance.audit_data["response"] == self.export_transaction_data["audit_data"]["response"]
+        export_transactions = instance.exporttransaction_set.all()
+        assert export_transactions[0].loyalty_identifier == "88899966"
+        assert export_transactions[0].provider_slug == "iceland-bonus-card"
+        assert export_transactions[1].loyalty_identifier == "99999999"
+        assert export_transactions[0].provider_slug == "iceland-bonus-card"
