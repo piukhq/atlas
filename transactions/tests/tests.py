@@ -2,14 +2,16 @@ import datetime
 from unittest import mock
 from unittest.mock import patch
 
+import kombu
+from atlas.settings import ATLAS_SERVICE_AUTH_HEADER
+from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
-
-from atlas.settings import ATLAS_SERVICE_AUTH_HEADER
-from transactions.models import Transaction
+from transactions.models import AuditData, Transaction
 from transactions.serializers import AuditDataSerializer
+from transactions.tasks import process_transaction
 from transactions.views import get_transactions
 
 
@@ -260,4 +262,65 @@ class TestExportTransaction(APITestCase):
         assert export_transactions[0].loyalty_identifier == "88899966"
         assert export_transactions[0].provider_slug == "iceland-bonus-card"
         assert export_transactions[1].loyalty_identifier == "99999999"
+        assert export_transactions[1].provider_slug == "iceland-bonus-card"
+
+
+class TestTransactionTask(APITestCase):
+
+    # MER-645: the new-style transaction data from Harmonia
+    def setUp(self):
+        settings.AMQP_DSN = 'memory://'
+        self.export_transaction_data = {
+            "provider_slug": "iceland-bonus-card",
+            "transactions": [
+                {
+                    "transaction_id": 1,
+                    "user_id": 0,
+                    "spend_amount": 1222,
+                    "transaction_date": "2020-10-27 15:01:00",
+                    "loyalty_identifier": "88899966",
+                    "record_uid": None,
+                },
+                {
+                    "transaction_id": 2,
+                    "user_id": 0,
+                    "spend_amount": 1222,
+                    "transaction_date": "2020-10-27 15:01:00",
+                    "loyalty_identifier": "99999999",
+                    "record_uid": "a544642d-012f-45cd-88c6-a436df62924f",
+                },
+            ],
+            "audit_data": {
+                "request": {
+                    "body": ('{"message_uid": "e0dc4d6b-1184-4b70-909b-b2472efae96a", "transactions": '
+                             '[{"record_uid": "v8vzj4ykl7g28d6mln9x05m31qpeor27", "merchant_scheme_id1": '
+                             '"v8vzj4ykl7g28d6mln9x05m31qpeor27", "merchant_scheme_id2": "88899966", '
+                             '"transaction_id": "a544642d-012f-45cd-88c6-a436df62924f"}]}'),
+                    "timestamp": "2021-01-18 14:46:14",
+                },
+                "response": {"body": "", "status_code": 200, "timestamp": "2021-01-18 14:46:14"},
+            },
+        }
+
+    def test_transaction_task(self):
+        with kombu.Connection(settings.AMQP_DSN) as conn:
+            simple_queue = conn.SimpleQueue(settings.TRANSACTION_QUEUE)
+            simple_queue.put(self.export_transaction_data)
+            simple_queue.close()
+
+        with kombu.Connection(settings.AMQP_DSN) as conn:
+            simple_queue = conn.SimpleQueue(settings.TRANSACTION_QUEUE)
+            transaction_message = simple_queue.get().payload
+            simple_queue.close()
+
+        process_transaction(transaction_message)
+        transactions = AuditData.objects.all()
+
+        assert transactions[0]
+        assert transactions[0].audit_data["request"] == self.export_transaction_data["audit_data"]["request"]
+        assert transactions[0].audit_data["response"] == self.export_transaction_data["audit_data"]["response"]
+        export_transactions = transactions[0].exporttransaction_set.all()
+        assert export_transactions[0].loyalty_identifier == "88899966"
         assert export_transactions[0].provider_slug == "iceland-bonus-card"
+        assert export_transactions[1].loyalty_identifier == "99999999"
+        assert export_transactions[1].provider_slug == "iceland-bonus-card"

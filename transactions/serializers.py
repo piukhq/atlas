@@ -50,4 +50,3 @@ class AuditDataSerializer(serializers.Serializer):
             transaction_data["provider_slug"] = validated_data["provider_slug"]
             ExportTransaction.objects.create(audit_data=audit_data, **transaction_data)
         return audit_data
-
