@@ -259,9 +259,8 @@ class TestExportTransaction(APITestCase):
         assert instance.audit_data["request"] == self.export_transaction_data["audit_data"]["request"]
         assert instance.audit_data["response"] == self.export_transaction_data["audit_data"]["response"]
         export_transactions = instance.exporttransaction_set.all()
-        assert export_transactions[0].loyalty_identifier == "88899966"
+        assert len(export_transactions) == 2
         assert export_transactions[0].provider_slug == "iceland-bonus-card"
-        assert export_transactions[1].loyalty_identifier == "99999999"
         assert export_transactions[1].provider_slug == "iceland-bonus-card"
 
 
@@ -320,7 +319,6 @@ class TestTransactionTask(APITestCase):
         assert transactions[0].audit_data["request"] == self.export_transaction_data["audit_data"]["request"]
         assert transactions[0].audit_data["response"] == self.export_transaction_data["audit_data"]["response"]
         export_transactions = transactions[0].exporttransaction_set.all()
-        assert export_transactions[0].loyalty_identifier == "88899966"
+        assert len(export_transactions) == 2
         assert export_transactions[0].provider_slug == "iceland-bonus-card"
-        assert export_transactions[1].loyalty_identifier == "99999999"
         assert export_transactions[1].provider_slug == "iceland-bonus-card"
