@@ -36,3 +36,26 @@ class TransactionRequest(models.Model):
 
     def __unicode__(self):
         return self.transaction_id
+
+
+class AuditData(models.Model):
+    """
+    Audit data for an export transaction received from the transaction matching engine
+    e.g. requests, responses, file names, in JSON format
+    """
+    audit_data = models.JSONField()
+
+
+class ExportTransaction(models.Model):
+    """
+    Export transaction(s) received from the transaction matching engine
+    """
+    transaction_id = models.CharField(max_length=100, db_index=True)
+    user_id = models.CharField(max_length=30, blank=True)
+    spend_amount = models.IntegerField(blank=True, help_text="Spend amount (pennies)")
+    transaction_date = models.DateTimeField(blank=True, db_index=True)
+    loyalty_identifier = models.CharField(max_length=250, blank=True, db_index=True)
+    record_uid = models.CharField(max_length=500, null=True, blank=True, db_index=True)
+    created_date = models.DateTimeField(auto_now_add=True, db_index=True, blank=False)
+    provider_slug = models.CharField(max_length=100, db_index=True)
+    audit_data = models.ForeignKey(AuditData, on_delete=models.CASCADE)
