@@ -20,7 +20,7 @@ class MembershipRequest(models.Model):
     membership_plan_slug = models.CharField(max_length=64, db_index=True, blank=True)
     message_uid = models.UUIDField(blank=True, unique=True)
     record_uid = models.CharField(max_length=100, blank=True)
-    callback_url = models.URLField(max_length=200, blank=True)
+    callback_url = models.URLField(max_length=200, blank=True, null=True)
     handler_type = models.CharField(max_length=32, blank=True)
     timestamp = models.DateTimeField(blank=True)
     integration_service = models.CharField(max_length=32, blank=True)
