@@ -56,6 +56,49 @@ def request_dict_data():
         },
     }
 
+@pytest.fixture
+def request_dict_data_null():
+    return {
+        "channel": "com.bink.wallet",
+        "membership_plan_slug": "some-plan-slug",
+        "handler_type": "JOIN",
+        "message_uid": "51bc9486-db0c-11ea-b8e5-acde48001129",
+        "record_uid": "pym1834v0zrqxnrz5e3wjdglepko5972",
+        "timestamp": timezone.now(),
+        "integration_service": "SYNC",
+        "callback_url": "",
+        "title": "Mr",
+        "first_name": "Rahima",
+        "last_name": "Tester",
+        "email": "rtester@binktest.com",
+        "postcode": "SL56RE",
+        "address_1": "8",
+        "address_2": "Street",
+        "town_city": "Rapture",
+        "county": "County",
+        "country": "GB",
+        "dob": "2000-12-12",
+        "phone1": "02084444444",
+        "payload": {
+            "title": "Mr",
+            "first_name": "Rahima",
+            "last_name": "Tester",
+            "email": " ",
+            "postcode": "SL56RE",
+            "address_1": "8",
+            "address_2": "Street",
+            "town_city": "Rapture",
+            "county": "County",
+            "country": "GB",
+            "marketing_opt_in": True,
+            "marketing_opt_in_thirdparty": False,
+            "merchant_scheme_id1": "oydgerxzp4k97w0pql2n0q2lo183j5mv",
+            "merchant_scheme_id2": None,
+            "dob": "2000-12-12",
+            "phone1": "02084444444"
+        },
+    }
+
 
 @pytest.fixture
 def response_data():
@@ -87,6 +130,14 @@ def test_request_serializer_is_valid(request_dict_data):
 
     assert str(instance.message_uid) == request_dict_data['message_uid']
 
+@pytest.mark.django_db
+def test_request_serializer_null_value(request_dict_data_null):
+    serializer = MembershipRequestSerializer(data=request_dict_data_null)
+    serializer.is_valid(raise_exception=True)
+    instance = serializer.save()
+
+    assert instance.email == request_dict_data_null['email']
+    assert instance.callback_url == request_dict_data_null['callback_url']
 
 @pytest.mark.django_db
 def test_response_serializer(response_data):
