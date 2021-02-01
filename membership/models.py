@@ -3,7 +3,7 @@ from django.db import models
 
 class MembershipRequest(models.Model):
     created_date = models.DateTimeField(auto_now_add=True, blank=True)
-    email = models.CharField(max_length=250, db_index=True, blank=False)
+    email = models.CharField(max_length=250, db_index=True, blank=True)
     title = models.CharField(max_length=250, blank=True)
     first_name = models.CharField(max_length=250, blank=True)
     last_name = models.CharField(max_length=250, blank=True, db_index=True)
