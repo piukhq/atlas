@@ -56,6 +56,7 @@ def request_dict_data():
         },
     }
 
+
 @pytest.fixture
 def request_dict_data_null():
     return {
@@ -130,6 +131,7 @@ def test_request_serializer_is_valid(request_dict_data):
 
     assert str(instance.message_uid) == request_dict_data['message_uid']
 
+
 @pytest.mark.django_db
 def test_request_serializer_null_value(request_dict_data_null):
     serializer = MembershipRequestSerializer(data=request_dict_data_null)
@@ -138,6 +140,7 @@ def test_request_serializer_null_value(request_dict_data_null):
 
     assert instance.email == request_dict_data_null['email']
     assert instance.callback_url == request_dict_data_null['callback_url']
+
 
 @pytest.mark.django_db
 def test_response_serializer(response_data):
