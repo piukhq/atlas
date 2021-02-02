@@ -27,9 +27,9 @@ class TestUtils(TestCase):
         self.assertEqual(expected_ice, actual_ice)
 
     def test_email_callback_url(self):
-        ice = {"email": "", "callback_url": "null"}
+        ice = {"email": "", "callback_url": None}
 
-        expected_ice = {"email": "", "callback_url": "null"}
+        expected_ice = {"email": "", "callback_url": None}
 
         actual_ice = MembershipRequestView().map_credentials(credentials=ice, slug="iceland-bonus-card")
 
