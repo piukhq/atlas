@@ -27,5 +27,6 @@ SLUG_TO_CREDENTIAL_MAP = {
         "LastName": "last_name",
         "Email": "email",
         "BirthDate": "date_of_birth",
+        "MemberNumber": "card_number",
     },
 }
