@@ -11,6 +11,7 @@ from .mappings import SLUG_TO_CREDENTIAL_MAP
 from .models import MembershipRequest
 from membership.serializers import MembershipRequestSerializer, MembershipResponseSerializer
 from membership.authentication import ServiceAuthentication
+from prometheus.signals import membership_request_fail, membership_request_success
 
 
 REQUEST = 'REQUEST'
@@ -56,8 +57,10 @@ class MembershipRequestView(APIView):
             try:
                 if serializer.is_valid(raise_exception=True):
                     serializer.save()
+                    membership_request_success.send(sender=self)
             except ValidationError as e:
                 logger.error(f"Error saving audit log - {e} - log data: {log_data}")
+                membership_request_fail.send(sender=self)
                 raise
 
         return Response('Data saved.', status=status.HTTP_201_CREATED)
