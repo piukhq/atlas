@@ -210,3 +210,4 @@ PROMETHEUS_LATENCY_BUCKETS = (.050, .125, .150, .2, .375, .450, .6, .8, 1.0, 2.0
                               15.0, 20.0, 30.0, float("inf"))
 PROMETHEUS_PUSH_GATEWAY = "http://localhost:9100"
 PROMETHEUS_JOB = "atlas"
+PUSH_PROMETHEUS_METRICS = env_var('PUSH_PROMETHEUS_METRICS', True)

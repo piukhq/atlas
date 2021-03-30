@@ -183,8 +183,9 @@ def response_data_json_str_payload():
 
 # ====== Tests ======
 @pytest.mark.django_db
+@mock.patch("membership.views.membership_request_success", autospec=True)
 @mock.patch("membership.views.SLUG_TO_CREDENTIAL_MAP", SLUG_TO_CREDENTIAL_MAP)
-def test_audit_log_save_view(client, request_response_data, membership_url):
+def test_audit_log_save_view(mock_membership_request_success, client, request_response_data, membership_url):
     response = client.post(
         path=membership_url,
         data=request_response_data,
@@ -201,11 +202,13 @@ def test_audit_log_save_view(client, request_response_data, membership_url):
 
     assert str(membership_response.request.message_uid) == request_data['message_uid']
     assert membership_response.status_code == response_data['status_code']
+    assert mock_membership_request_success.return_value.send.called_once
 
 
 @pytest.mark.django_db
+@mock.patch("membership.views.membership_request_success", autospec=True)
 @mock.patch("membership.views.SLUG_TO_CREDENTIAL_MAP", SLUG_TO_CREDENTIAL_MAP)
-def test_audit_log_save_response(client, response_data, response_data_json_str_payload,
+def test_audit_log_save_response(mock_membership_request_success, client, response_data, response_data_json_str_payload,
                                  response_data_str_payload, membership_url):
     MembershipRequestFactory(message_uid='51bc9486-db0c-11ea-b8e5-acde48001122')
 
@@ -223,6 +226,7 @@ def test_audit_log_save_response(client, response_data, response_data_json_str_p
         response_payload = response_data['audit_logs'][0]
 
         assert membership_response.status_code == response_payload['status_code']
+        assert mock_membership_request_success.return_value.send.called_once
 
     for resp_data in [response_data, response_data_str_payload]:
         save_resp_test()
@@ -233,9 +237,11 @@ def test_audit_log_save_response(client, response_data, response_data_json_str_p
 
 
 @pytest.mark.django_db
+@mock.patch("membership.views.membership_request_success", autospec=True)
 @mock.patch("membership.views.SLUG_TO_CREDENTIAL_MAP", SLUG_TO_CREDENTIAL_MAP)
 def test_audit_log_update_credentials_from_response(
-    client, response_data, response_data_json_str_payload, response_data_str_payload, membership_url
+        mock_membership_request_success, client, response_data, response_data_json_str_payload,
+        response_data_str_payload, membership_url
 ):
     membership_request = MembershipRequestFactory(message_uid='51bc9486-db0c-11ea-b8e5-acde48001122')
     membership_request.card_number = ''
@@ -258,6 +264,8 @@ def test_audit_log_update_credentials_from_response(
     membership_request.refresh_from_db()
     assert membership_request.card_number == "12345"
     assert not membership_request.email == "some@e.mail"
+
+    assert mock_membership_request_success.return_value.send.called_once
 
 
 @pytest.mark.django_db
@@ -285,6 +293,30 @@ def test_audit_log_update_credentials_from_response_does_not_save_on_validation_
     membership_request.refresh_from_db()
     assert membership_request.card_number == ""
     assert not membership_request.last_name == "Bonky"
+
+
+@pytest.mark.django_db
+@mock.patch("membership.views.MembershipRequestView.process_response", autospec=True)
+@mock.patch("membership.views.membership_request_fail", autospec=True)
+@mock.patch("membership.views.SLUG_TO_CREDENTIAL_MAP", SLUG_TO_CREDENTIAL_MAP)
+def test_audit_log_sends_signal_and_does_not_save_on_validation_error(
+        mock_membership_request_fail, mock_process_response, client, response_data_str_payload, membership_url
+):
+    membership_request = MembershipRequestFactory(message_uid='51bc9486-db0c-11ea-b8e5-acde48001122')
+    membership_request.card_number = ''
+    membership_request.save()
+
+    mock_process_response.return_value = {"will break validation": True}
+
+    response = client.post(
+        path=membership_url,
+        data=response_data_str_payload,
+        HTTP_AUTHORIZATION=ATLAS_SERVICE_AUTH_HEADER,
+        content_type='application/json'
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert mock_membership_request_fail.return_value.send.called_once
 
 
 # ====== Auth Tests ======
