@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_prometheus',
     'rest_framework',
-    'prometheus_pusher.apps.PrometheusPusherConfig',
+    'prometheus.apps.PrometheusConfig',
     'membership',
     'transactions',
     'ubiquity_users',
@@ -184,7 +184,7 @@ AMQP_USER = env_var("AMQP_USER", "guest")
 AMQP_PASSWORD = env_var("AMQP_PASSWORD", "guest")
 AMQP_HOST = env_var("AMQP_HOST", "localhost")
 AMQP_PORT = env_var("AMQP_PORT", "5672")
-AMQP_DSN = f"amqp://{AMQP_USER}:{AMQP_PASSWORD}@{AMQP_HOST}:{AMQP_PORT}//"
+AMQP_DSN = env_var("AMQP_DSN", f"amqp://{AMQP_USER}:{AMQP_PASSWORD}@{AMQP_HOST}:{AMQP_PORT}//")
 
 # Queue from which to read Harmonia transaction messages.
 TRANSACTION_QUEUE = env_var('TRANSACTION_QUEUE', 'tx_matching')
@@ -209,3 +209,4 @@ PROMETHEUS_LATENCY_BUCKETS = (.050, .125, .150, .2, .375, .450, .6, .8, 1.0, 2.0
                               15.0, 20.0, 30.0, float("inf"))
 PROMETHEUS_PUSH_GATEWAY = "http://localhost:9100"
 PROMETHEUS_JOB = "atlas"
+PUSH_PROMETHEUS_METRICS = env_var('PUSH_PROMETHEUS_METRICS', True)

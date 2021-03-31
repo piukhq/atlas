@@ -10,6 +10,7 @@ from atlas.csv_writer import write_to_csv
 from atlas.decorators import token_check
 from atlas.settings import TRANSACTION_REPORTS_CONTAINER
 from atlas.storage import create_blob_from_csv
+from prometheus.signals import transaction_fail, transaction_success
 from transactions.models import Transaction
 from transactions.serializers import TransactionSerializer
 
@@ -86,10 +87,12 @@ class TransactionSaveView(APIView):
 
         if transaction_serializer.is_valid():
             transaction_serializer.save()
+            transaction_success.send(sender="TransactionSaveView.post")
             return Response(data='Transaction saved: {}'.format(transaction_serializer.data),
                             status=status.HTTP_201_CREATED)
 
         logger.warning('TransactionSaveView.post: Transaction NOT saved {}'.format(transaction_serializer.errors))
+        transaction_fail.send(sender="TransactionSaveView.post")
 
         id_error = transaction_serializer.errors.get("transaction_id")
         if id_error and id_error[0].code == "unique":
