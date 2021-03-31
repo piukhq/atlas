@@ -46,7 +46,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_prometheus',
     'rest_framework',
-    # 'prometheus_pusher.apps.PrometheusPusherConfig',
     'prometheus.apps.PrometheusConfig',
     'membership',
     'transactions',
