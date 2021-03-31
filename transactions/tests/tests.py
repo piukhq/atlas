@@ -198,8 +198,8 @@ class TestSaveEndpoint(APITestCase):
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Transaction.objects.count(), 1)
         self.assertEqual(Transaction.objects.get().scheme_provider, 'harvey-nichols')
-        assert mock_transaction_success.send.called
-        assert mock_transaction_success.send.call_count == 1
+        self.assertTrue(mock_transaction_success.send.called)
+        self.assertEqual(1, mock_transaction_success.send.call_count)
 
     @patch("transactions.views.transaction_fail", autospec=True)
     def test_auth_decorator_passes_when_token_is_used(self, mock_transaction_fail):
@@ -207,8 +207,8 @@ class TestSaveEndpoint(APITestCase):
         resp = self.client.post(self.url, self.bad_payload, format='json')
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Transaction.objects.count(), 0)
-        assert mock_transaction_fail.send.called
-        assert mock_transaction_fail.send.call_count == 1
+        self.assertTrue(mock_transaction_fail.send.called)
+        self.assertEqual(1, mock_transaction_fail.send.call_count)
 
     @patch("transactions.views.transaction_success", autospec=True)
     def test_duplicate_transaction_returns_200(self, mock_transaction_success):
@@ -220,8 +220,8 @@ class TestSaveEndpoint(APITestCase):
         resp = self.client.post(self.url, self.payload, format='json')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(Transaction.objects.count(), 1)
-        assert mock_transaction_success.send.called
-        assert mock_transaction_success.send.call_count == 1
+        self.assertTrue(mock_transaction_success.send.called)
+        self.assertEqual(1, mock_transaction_success.send.call_count)
 
 
 class TestExportTransaction(APITestCase):
