@@ -191,20 +191,27 @@ class TestSaveEndpoint(APITestCase):
             'amount': 12.0
         }
 
-    def test_persist_valid_transaction(self):
+    @patch("transactions.views.transaction_success", autospec=True)
+    def test_persist_valid_transaction(self, mock_transaction_success):
         self.client.credentials(HTTP_AUTHORIZATION=self.auth_headers)
         resp = self.client.post(self.url, self.payload, format='json')
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Transaction.objects.count(), 1)
         self.assertEqual(Transaction.objects.get().scheme_provider, 'harvey-nichols')
+        self.assertTrue(mock_transaction_success.send.called)
+        self.assertEqual(1, mock_transaction_success.send.call_count)
 
-    def test_auth_decorator_passes_when_token_is_used(self):
+    @patch("transactions.views.transaction_fail", autospec=True)
+    def test_auth_decorator_passes_when_token_is_used(self, mock_transaction_fail):
         self.client.credentials(HTTP_AUTHORIZATION=self.auth_headers)
         resp = self.client.post(self.url, self.bad_payload, format='json')
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Transaction.objects.count(), 0)
+        self.assertTrue(mock_transaction_fail.send.called)
+        self.assertEqual(1, mock_transaction_fail.send.call_count)
 
-    def test_duplicate_transaction_returns_200(self):
+    @patch("transactions.views.transaction_success", autospec=True)
+    def test_duplicate_transaction_returns_200(self, mock_transaction_success):
         self.client.credentials(HTTP_AUTHORIZATION=self.auth_headers)
         resp = self.client.post(self.url, self.payload, format='json')
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
@@ -213,6 +220,8 @@ class TestSaveEndpoint(APITestCase):
         resp = self.client.post(self.url, self.payload, format='json')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(Transaction.objects.count(), 1)
+        self.assertTrue(mock_transaction_success.send.called)
+        self.assertEqual(1, mock_transaction_success.send.call_count)
 
 
 class TestExportTransaction(APITestCase):
