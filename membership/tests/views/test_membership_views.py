@@ -202,7 +202,8 @@ def test_audit_log_save_view(mock_membership_request_success, client, request_re
 
     assert str(membership_response.request.message_uid) == request_data['message_uid']
     assert membership_response.status_code == response_data['status_code']
-    assert mock_membership_request_success.return_value.send.called_once
+    assert mock_membership_request_success.send.called
+    assert mock_membership_request_success.send.call_count == 2
 
 
 @pytest.mark.django_db
@@ -226,7 +227,7 @@ def test_audit_log_save_response(mock_membership_request_success, client, respon
         response_payload = response_data['audit_logs'][0]
 
         assert membership_response.status_code == response_payload['status_code']
-        assert mock_membership_request_success.return_value.send.called_once
+        assert mock_membership_request_success.send.called
 
     for resp_data in [response_data, response_data_str_payload]:
         save_resp_test()
@@ -265,7 +266,8 @@ def test_audit_log_update_credentials_from_response(
     assert membership_request.card_number == "12345"
     assert not membership_request.email == "some@e.mail"
 
-    assert mock_membership_request_success.return_value.send.called_once
+    assert mock_membership_request_success.send.called
+    assert mock_membership_request_success.send.call_count == 1
 
 
 @pytest.mark.django_db
@@ -316,7 +318,8 @@ def test_audit_log_sends_signal_and_does_not_save_on_validation_error(
     )
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert mock_membership_request_fail.return_value.send.called_once
+    assert mock_membership_request_fail.send.called
+    assert mock_membership_request_fail.send.call_count == 1
 
 
 # ====== Auth Tests ======
