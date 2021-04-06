@@ -7,6 +7,7 @@ from django.conf import settings
 import kombu
 import kombu.mixins
 
+from prometheus.signals import transaction_fail, transaction_success
 from transactions import tasks
 
 
@@ -27,6 +28,7 @@ class Consumer(kombu.mixins.ConsumerMixin):
         try:
             tasks.process_transaction(body)
             message.ack()
+            transaction_success.send(sender="TransactionSaveView.post")
         except Exception as ex:
             # we capture manually as we don't want these failures to crash the process
             event_id = sentry_sdk.capture_exception()
@@ -34,6 +36,7 @@ class Consumer(kombu.mixins.ConsumerMixin):
                 f"tasks.process_transaction raised exception: {repr(ex)}. "
                 f"Sentry event ID: {event_id}"
             )
+            transaction_fail.send(sender="TransactionSaveView.post")
 
 
 class Command(BaseCommand):
