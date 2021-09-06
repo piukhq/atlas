@@ -27,11 +27,12 @@ class Consumer(kombu.mixins.ConsumerMixin):
 
         try:
             tasks.process_transaction(body)
-            message.ack()
-            transaction_success.send(sender="TransactionSaveView.post")
-        except Exception as ex:
+        except Exception:
             transaction_fail.send(sender="TransactionSaveView.post")
             raise
+        else:
+            message.ack()
+            transaction_success.send(sender="TransactionSaveView.post")
 
 
 class Command(BaseCommand):
