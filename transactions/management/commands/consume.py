@@ -1,7 +1,5 @@
 import logging
 
-import sentry_sdk
-
 from django.core.management.base import BaseCommand
 from django.conf import settings
 import kombu
