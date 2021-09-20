@@ -1,7 +1,5 @@
 import logging
 
-import sentry_sdk
-
 from django.core.management.base import BaseCommand
 from django.conf import settings
 import kombu
@@ -27,16 +25,12 @@ class Consumer(kombu.mixins.ConsumerMixin):
 
         try:
             tasks.process_transaction(body)
+        except Exception:
+            transaction_fail.send(sender="TransactionSaveView.post")
+            raise
+        else:
             message.ack()
             transaction_success.send(sender="TransactionSaveView.post")
-        except Exception as ex:
-            # we capture manually as we don't want these failures to crash the process
-            event_id = sentry_sdk.capture_exception()
-            logger.warning(
-                f"tasks.process_transaction raised exception: {repr(ex)}. "
-                f"Sentry event ID: {event_id}"
-            )
-            transaction_fail.send(sender="TransactionSaveView.post")
 
 
 class Command(BaseCommand):
