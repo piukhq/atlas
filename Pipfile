@@ -27,3 +27,6 @@ pytest = "*"
 ptpython = "*"
 isort = "*"
 xenon = "*"
+
+[requires]
+python_version = "3.9"
