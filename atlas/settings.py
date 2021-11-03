@@ -17,6 +17,8 @@ from sentry_sdk.integrations.django import DjangoIntegration
 
 from environment import env_var, read_env
 
+import dj_database_url
+
 read_env()
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -114,17 +116,27 @@ LOGGING = {
 
 # So apparently django_prometheus.db.backends.postgresql_psycopg2 is a db engine wrapper
 # to get metrics about db queries?
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': env_var("ATLAS_DATABASE_NAME", "atlas"),
-        'USER': env_var("ATLAS_DATABASE_USER", "postgres"),
-        'PASSWORD': env_var("ATLAS_DATABASE_PASS"),
-        'HOST': env_var("ATLAS_DATABASE_HOST", "postgres"),
-        'PORT': env_var("ATLAS_DATABASE_PORT", "5432"),
-        'CONN_MAX_AGE': 0,
+
+if env_var("ATLAS_DATABASE_URI"):
+    DATABASES = {
+        "default": dj_database_url.config(
+            env="ATLAS_DATABASE_URI",
+            conn_max_age=600,
+            engine="django.db.backends.postgresql_psycopg2",
+        )
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': env_var("ATLAS_DATABASE_NAME", "atlas"),
+            'USER': env_var("ATLAS_DATABASE_USER", "postgres"),
+            'PASSWORD': env_var("ATLAS_DATABASE_PASS"),
+            'HOST': env_var("ATLAS_DATABASE_HOST", "postgres"),
+            'PORT': env_var("ATLAS_DATABASE_PORT", "5432"),
+            'CONN_MAX_AGE': 0,
+        }
+    }
 
 
 # Password validation
