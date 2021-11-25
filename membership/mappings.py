@@ -25,7 +25,5 @@ SLUG_TO_CREDENTIAL_MAP = {
         "BirthDate": "date_of_birth",
         "MemberNumber": "card_number",
     },
-    "squaremeal": {
-        "MembershipNumber": "card_number"
-    }
+    "squaremeal": {"MembershipNumber": "card_number"},
 }
