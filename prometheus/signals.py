@@ -1,4 +1,5 @@
 import django.dispatch
+
 from prometheus.apps import PrometheusManager
 
 prometheus_manager = PrometheusManager()

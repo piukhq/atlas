@@ -33,7 +33,7 @@ class MembershipRequest(models.Model):
 
 class MembershipResponse(models.Model):
     created_date = models.DateTimeField(auto_now_add=True, blank=True)
-    request = models.ForeignKey(MembershipRequest, on_delete=models.CASCADE, related_name='responses')
+    request = models.ForeignKey(MembershipRequest, on_delete=models.CASCADE, related_name="responses")
     response_body = models.TextField(blank=True)
     timestamp = models.DateTimeField(blank=True)
     status_code = models.IntegerField(blank=True)

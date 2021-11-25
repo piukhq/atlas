@@ -4,7 +4,6 @@ from membership.views import MembershipRequestView
 
 
 class TestUtils(TestCase):
-
     def test_flatten_dict(self):
         payload = {"CustomerSignUp": {"email": "test@e.mail", "first_name": "Bonk"}}
         expected = {"email": "test@e.mail", "first_name": "Bonk"}

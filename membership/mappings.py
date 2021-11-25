@@ -13,11 +13,7 @@ SLUG_TO_CREDENTIAL_MAP = {
         "customerNumber": "card_number",
         "phone": "phone_number",
     },
-    "iceland-bonus-card": {
-        "town_city": "city",
-        "phone1": "phone_number",
-        "dob": "date_of_birth"
-    },
+    "iceland-bonus-card": {"town_city": "city", "phone1": "phone_number", "dob": "date_of_birth"},
     "fatface": {
         "surname": "last_name",
         "publisher": fatface_card_number,

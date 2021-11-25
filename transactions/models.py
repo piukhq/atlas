@@ -5,6 +5,7 @@ class Transaction(models.Model):
     """
     Transaction export status
     """
+
     created_date = models.DateTimeField(auto_now_add=True, db_index=True, blank=False)
     scheme_provider = models.CharField(max_length=100, db_index=True)
     response = models.CharField(max_length=3000, blank=True)
@@ -22,6 +23,7 @@ class TransactionRequest(models.Model):
     """
     Transaction request for audit
     """
+
     created_date = models.DateTimeField(auto_now_add=True)
     customer_number = models.CharField(max_length=250, blank=True, db_index=True)
     transaction_id = models.CharField(max_length=100, db_index=True, unique=True)
@@ -43,6 +45,7 @@ class AuditData(models.Model):
     Audit data for an export transaction received from the transaction matching engine
     e.g. requests, responses, file names, in JSON format
     """
+
     audit_data = models.JSONField()
 
 
@@ -50,6 +53,7 @@ class ExportTransaction(models.Model):
     """
     Export transaction(s) received from the transaction matching engine
     """
+
     transaction_id = models.CharField(max_length=100, db_index=True)
     user_id = models.CharField(max_length=30, blank=True)
     spend_amount = models.IntegerField(blank=True, help_text="Spend amount (pennies)")

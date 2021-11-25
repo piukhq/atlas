@@ -2,6 +2,7 @@ from unittest import mock
 
 from django.conf import settings
 from django.test import TestCase
+
 from prometheus.signals import (
     membership_request_fail,
     membership_request_success,

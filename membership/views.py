@@ -7,14 +7,14 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .mappings import SLUG_TO_CREDENTIAL_MAP
-from .models import MembershipRequest
-from membership.serializers import MembershipRequestSerializer, MembershipResponseSerializer
 from membership.authentication import ServiceAuthentication
+from membership.serializers import MembershipRequestSerializer, MembershipResponseSerializer
 from prometheus.signals import membership_request_fail, membership_request_success
 
+from .mappings import SLUG_TO_CREDENTIAL_MAP
+from .models import MembershipRequest
 
-REQUEST = 'REQUEST'
+REQUEST = "REQUEST"
 
 logger = logging.getLogger(__name__)
 
@@ -23,32 +23,33 @@ class MembershipRequestView(APIView):
     """
     Saves Membership and registration requests and responses.
     """
-    authentication_classes = (ServiceAuthentication, )
+
+    authentication_classes = (ServiceAuthentication,)
 
     def post(self, request):
-        audit_logs = request.data['audit_logs']
+        audit_logs = request.data["audit_logs"]
 
         for log in audit_logs:
-            log_type = log.get('audit_log_type')
+            log_type = log.get("audit_log_type")
 
             if log_type == REQUEST:
                 # Flatten out for serializer (name, address ect..)
                 log_data = {
                     **log,
-                    **self.flatten_dict(log['payload']),
-                    'timestamp': datetime.fromtimestamp(log['timestamp'])
+                    **self.flatten_dict(log["payload"]),
+                    "timestamp": datetime.fromtimestamp(log["timestamp"]),
                 }
 
                 # Map credentials to model fields depending on scheme
-                mapped_log_data = self.map_credentials(log_data, log['membership_plan_slug'])
+                mapped_log_data = self.map_credentials(log_data, log["membership_plan_slug"])
 
                 serializer = MembershipRequestSerializer(data=mapped_log_data)
             else:
-                message_uid = log['message_uid']
+                message_uid = log["message_uid"]
                 try:
                     membership_request = MembershipRequest.objects.only("id").get(message_uid=message_uid)
                 except MembershipRequest.DoesNotExist as e:
-                    logger.error(f'No request with the message_uid - {message_uid}')
+                    logger.error(f"No request with the message_uid - {message_uid}")
                     raise e
 
                 log_data = self.process_response(log, membership_request)
@@ -63,7 +64,7 @@ class MembershipRequestView(APIView):
                 membership_request_fail.send(sender=self)
                 raise
 
-        return Response('Data saved.', status=status.HTTP_201_CREATED)
+        return Response("Data saved.", status=status.HTTP_201_CREATED)
 
     def flatten_dict(self, obj: dict) -> dict:
         """
@@ -103,30 +104,30 @@ class MembershipRequestView(APIView):
     def process_response(self, log: dict, membership_request: MembershipRequest) -> dict:
         log_data = {
             **log,
-            'request': membership_request.id,
-            'timestamp': datetime.fromtimestamp(log['timestamp']),
-            'payload': log['payload'],
+            "request": membership_request.id,
+            "timestamp": datetime.fromtimestamp(log["timestamp"]),
+            "payload": log["payload"],
         }
 
-        if isinstance(log['payload'], dict):
+        if isinstance(log["payload"], dict):
             flattened_log_data = {
                 **log_data,
-                **self.flatten_dict(log['payload']),
-                'payload': json.dumps(log['payload']),
+                **self.flatten_dict(log["payload"]),
+                "payload": json.dumps(log["payload"]),
             }
-            log_data = self.map_credentials(flattened_log_data, log['membership_plan_slug'])
+            log_data = self.map_credentials(flattened_log_data, log["membership_plan_slug"])
 
-        elif isinstance(log['payload'], str):
+        elif isinstance(log["payload"], str):
             try:
-                payload_dict = {'payload': log['payload']}
-                if log['payload']:
-                    payload_dict.update(**self.flatten_dict(json.loads(log['payload'])))
+                payload_dict = {"payload": log["payload"]}
+                if log["payload"]:
+                    payload_dict.update(**self.flatten_dict(json.loads(log["payload"])))
 
                 flattened_log_data = {
                     **log_data,
                     **payload_dict,
                 }
-                log_data = self.map_credentials(flattened_log_data, log['membership_plan_slug'])
+                log_data = self.map_credentials(flattened_log_data, log["membership_plan_slug"])
 
             except json.JSONDecodeError:
                 return log_data
