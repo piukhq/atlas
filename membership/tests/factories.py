@@ -6,18 +6,11 @@ from faker import Factory
 
 from membership.models import MembershipRequest, MembershipResponse
 
-CHANNELS = [
-    'bink',
-    'barclays',
-    'fat_face'
-]
+CHANNELS = ["bink", "barclays", "fat_face"]
 
-INTEGRATION_SERVICE = [
-    'async',
-    'synchronous'
-]
+INTEGRATION_SERVICE = ["async", "synchronous"]
 
-faker = Factory.create(locale='en_GB')
+faker = Factory.create(locale="en_GB")
 
 
 class MembershipRequestFactory(factory.django.DjangoModelFactory):
@@ -35,16 +28,16 @@ class MembershipRequestFactory(factory.django.DjangoModelFactory):
     address_1 = faker.street_address()
     city = faker.city()
     country = faker.country()
-    card_number = '123456789'
+    card_number = "123456789"
     timestamp = datetime.now()
     integration_service = factory.fuzzy.FuzzyChoice(INTEGRATION_SERVICE)
     channel = factory.fuzzy.FuzzyChoice(CHANNELS)
     message_uid = uuid4()
-    record_uid = 'testBinkRecordUID'
-    membership_plan_slug = 'test_membership_plan'
-    callback_url = 'http://test-call-back-url'
-    handler_type = 'JOIN'
-    payload = {'payload': 'test'}
+    record_uid = "testBinkRecordUID"
+    membership_plan_slug = "test_membership_plan"
+    callback_url = "http://test-call-back-url"
+    handler_type = "JOIN"
+    payload = {"payload": "test"}
 
 
 class MembershipResponseFactory(factory.django.DjangoModelFactory):
@@ -52,10 +45,6 @@ class MembershipResponseFactory(factory.django.DjangoModelFactory):
         model = MembershipResponse
 
     request = factory.SubFactory(MembershipRequestFactory)
-    response_body = {
-        "email": faker.email(),
-        "first_name": faker.first_name(),
-        "last_name": faker.last_name()
-    }
+    response_body = {"email": faker.email(), "first_name": faker.first_name(), "last_name": faker.last_name()}
     timestamp = datetime.now()
     status_code = 200

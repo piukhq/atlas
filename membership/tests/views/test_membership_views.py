@@ -1,14 +1,12 @@
 from unittest import mock
 
 import pytest
-from rest_framework import status
-
 from django.urls import reverse
+from rest_framework import status
 
 from atlas.settings import ATLAS_SERVICE_AUTH_HEADER
 from membership.models import MembershipResponse
 from membership.tests.factories import MembershipRequestFactory
-
 
 # ====== Fixtures ======
 SLUG_TO_CREDENTIAL_MAP = {
@@ -23,7 +21,7 @@ SLUG_TO_CREDENTIAL_MAP = {
 
 @pytest.fixture
 def membership_url():
-    return reverse('membership_audit')
+    return reverse("membership_audit")
 
 
 @pytest.fixture
@@ -58,8 +56,8 @@ def request_response_data():
                     "merchant_scheme_id1": "oydgerxzp4k97w0pql2n0q2lo183j5mv",
                     "merchant_scheme_id2": None,
                     "dob": "2000-12-12",
-                    "phone1": "02084444444"
-                }
+                    "phone1": "02084444444",
+                },
             },
             {
                 "audit_log_type": "RESPONSE",
@@ -90,10 +88,10 @@ def request_response_data():
                     "merchant_scheme_id1": "oydgerxzp4k97w0pql2n0q2lo183j5mv",
                     "merchant_scheme_id2": None,
                     "dob": "2000-12-12",
-                    "phone1": "02084444444"
+                    "phone1": "02084444444",
                 },
-                'response_body': 'OK'
-            }
+                "response_body": "OK",
+            },
         ]
     }
 
@@ -131,9 +129,9 @@ def response_data():
                     "merchant_scheme_id1": "oydgerxzp4k97w0pql2n0q2lo183j5mv",
                     "merchant_scheme_id2": None,
                     "dob": "2000-12-12",
-                    "phone1": "02084444444"
+                    "phone1": "02084444444",
                 },
-                'response_body': 'OK'
+                "response_body": "OK",
             }
         ]
     }
@@ -154,7 +152,7 @@ def response_data_str_payload():
                 "integration_service": "SYNC",
                 "status_code": 200,
                 "payload": "Some string payload",
-                'response_body': 'OK'
+                "response_body": "OK",
             }
         ]
     }
@@ -174,8 +172,8 @@ def response_data_json_str_payload():
                 "timestamp": 1597071345,
                 "integration_service": "SYNC",
                 "status_code": 200,
-                "payload": "{\"customerNumber\":\"12345\", \"email\": \"some@e.mail\"}",
-                'response_body': 'OK'
+                "payload": '{"customerNumber":"12345", "email": "some@e.mail"}',
+                "response_body": "OK",
             }
         ]
     }
@@ -190,18 +188,18 @@ def test_audit_log_save_view(mock_membership_request_success, client, request_re
         path=membership_url,
         data=request_response_data,
         HTTP_AUTHORIZATION=ATLAS_SERVICE_AUTH_HEADER,
-        content_type='application/json'
+        content_type="application/json",
     )
 
     assert response.status_code == status.HTTP_201_CREATED
 
-    request_data = request_response_data['audit_logs'][0]
-    response_data = request_response_data['audit_logs'][1]
+    request_data = request_response_data["audit_logs"][0]
+    response_data = request_response_data["audit_logs"][1]
 
     membership_response = MembershipResponse.objects.last()
 
-    assert str(membership_response.request.message_uid) == request_data['message_uid']
-    assert membership_response.status_code == response_data['status_code']
+    assert str(membership_response.request.message_uid) == request_data["message_uid"]
+    assert membership_response.status_code == response_data["status_code"]
     assert mock_membership_request_success.send.called
     assert mock_membership_request_success.send.call_count == 2
 
@@ -209,31 +207,37 @@ def test_audit_log_save_view(mock_membership_request_success, client, request_re
 @pytest.mark.django_db
 @mock.patch("membership.views.membership_request_success", autospec=True)
 @mock.patch("membership.views.SLUG_TO_CREDENTIAL_MAP", SLUG_TO_CREDENTIAL_MAP)
-def test_audit_log_save_response(mock_membership_request_success, client, response_data, response_data_json_str_payload,
-                                 response_data_str_payload, membership_url):
-    MembershipRequestFactory(message_uid='51bc9486-db0c-11ea-b8e5-acde48001122')
+def test_audit_log_save_response(
+    mock_membership_request_success,
+    client,
+    response_data,
+    response_data_json_str_payload,
+    response_data_str_payload,
+    membership_url,
+):
+    MembershipRequestFactory(message_uid="51bc9486-db0c-11ea-b8e5-acde48001122")
 
     def save_resp_test():
         response = client.post(
             path=membership_url,
             data=resp_data,
             HTTP_AUTHORIZATION=ATLAS_SERVICE_AUTH_HEADER,
-            content_type='application/json'
+            content_type="application/json",
         )
 
         assert response.status_code == status.HTTP_201_CREATED
 
         membership_response = MembershipResponse.objects.last()
-        response_payload = response_data['audit_logs'][0]
+        response_payload = response_data["audit_logs"][0]
 
-        assert membership_response.status_code == response_payload['status_code']
+        assert membership_response.status_code == response_payload["status_code"]
         assert mock_membership_request_success.send.called
 
     for resp_data in [response_data, response_data_str_payload]:
         save_resp_test()
 
     # Test saving empty string for payload
-    response_data_str_payload['audit_logs'][0]['payload'] = ""
+    response_data_str_payload["audit_logs"][0]["payload"] = ""
     save_resp_test()
 
 
@@ -241,26 +245,30 @@ def test_audit_log_save_response(mock_membership_request_success, client, respon
 @mock.patch("membership.views.membership_request_success", autospec=True)
 @mock.patch("membership.views.SLUG_TO_CREDENTIAL_MAP", SLUG_TO_CREDENTIAL_MAP)
 def test_audit_log_update_credentials_from_response(
-        mock_membership_request_success, client, response_data, response_data_json_str_payload,
-        response_data_str_payload, membership_url
+    mock_membership_request_success,
+    client,
+    response_data,
+    response_data_json_str_payload,
+    response_data_str_payload,
+    membership_url,
 ):
-    membership_request = MembershipRequestFactory(message_uid='51bc9486-db0c-11ea-b8e5-acde48001122')
-    membership_request.card_number = ''
+    membership_request = MembershipRequestFactory(message_uid="51bc9486-db0c-11ea-b8e5-acde48001122")
+    membership_request.card_number = ""
     membership_request.save()
 
     response = client.post(
         path=membership_url,
         data=response_data_json_str_payload,
         HTTP_AUTHORIZATION=ATLAS_SERVICE_AUTH_HEADER,
-        content_type='application/json'
+        content_type="application/json",
     )
 
     assert response.status_code == status.HTTP_201_CREATED
 
     membership_response = MembershipResponse.objects.last()
-    response_payload = response_data['audit_logs'][0]
+    response_payload = response_data["audit_logs"][0]
 
-    assert membership_response.status_code == response_payload['status_code']
+    assert membership_response.status_code == response_payload["status_code"]
 
     membership_request.refresh_from_db()
     assert membership_request.card_number == "12345"
@@ -275,19 +283,19 @@ def test_audit_log_update_credentials_from_response(
 def test_audit_log_update_credentials_from_response_does_not_save_on_validation_error(
     client, response_data, response_data_json_str_payload, response_data_str_payload, membership_url
 ):
-    membership_request = MembershipRequestFactory(message_uid='51bc9486-db0c-11ea-b8e5-acde48001122')
-    membership_request.card_number = ''
+    membership_request = MembershipRequestFactory(message_uid="51bc9486-db0c-11ea-b8e5-acde48001122")
+    membership_request.card_number = ""
     membership_request.save()
 
-    response_data_str_payload["audit_logs"][0]["payload"] = (f"{{\"customerNumber\":\"12345\", "
-                                                             f"\"last_name\": \"Bonky\", "
-                                                             f"\"first_name\": \"{'a' * 260}\"}}")
+    response_data_str_payload["audit_logs"][0]["payload"] = (
+        f'{{"customerNumber":"12345", ' f'"last_name": "Bonky", ' f"\"first_name\": \"{'a' * 260}\"}}"
+    )
 
     response = client.post(
         path=membership_url,
         data=response_data_str_payload,
         HTTP_AUTHORIZATION=ATLAS_SERVICE_AUTH_HEADER,
-        content_type='application/json'
+        content_type="application/json",
     )
 
     assert response.status_code == status.HTTP_201_CREATED
@@ -302,10 +310,10 @@ def test_audit_log_update_credentials_from_response_does_not_save_on_validation_
 @mock.patch("membership.views.membership_request_fail", autospec=True)
 @mock.patch("membership.views.SLUG_TO_CREDENTIAL_MAP", SLUG_TO_CREDENTIAL_MAP)
 def test_audit_log_sends_signal_and_does_not_save_on_validation_error(
-        mock_membership_request_fail, mock_process_response, client, response_data_str_payload, membership_url
+    mock_membership_request_fail, mock_process_response, client, response_data_str_payload, membership_url
 ):
-    membership_request = MembershipRequestFactory(message_uid='51bc9486-db0c-11ea-b8e5-acde48001122')
-    membership_request.card_number = ''
+    membership_request = MembershipRequestFactory(message_uid="51bc9486-db0c-11ea-b8e5-acde48001122")
+    membership_request.card_number = ""
     membership_request.save()
 
     mock_process_response.return_value = {"will break validation": True}
@@ -314,7 +322,7 @@ def test_audit_log_sends_signal_and_does_not_save_on_validation_error(
         path=membership_url,
         data=response_data_str_payload,
         HTTP_AUTHORIZATION=ATLAS_SERVICE_AUTH_HEADER,
-        content_type='application/json'
+        content_type="application/json",
     )
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -327,4 +335,4 @@ def test_fail_without_token(client, request_response_data, membership_url):
     response = client.post(path=membership_url, json=request_response_data)
 
     assert response.status_code == 403
-    assert response.json()['detail'] == 'Invalid token.'
+    assert response.json()["detail"] == "Invalid token."

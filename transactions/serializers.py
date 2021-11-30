@@ -4,10 +4,9 @@ from transactions.models import AuditData, ExportTransaction, Transaction, Trans
 
 
 class TransactionSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Transaction
-        fields = '__all__'
+        fields = "__all__"
 
 
 class TransactionRequestListSerializer(serializers.ListSerializer):

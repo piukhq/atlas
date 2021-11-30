@@ -2,7 +2,7 @@ import logging
 from datetime import datetime, timedelta
 
 from azure.core.exceptions import ResourceExistsError
-from django.db import connections, DEFAULT_DB_ALIAS
+from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.utils import OperationalError
 from django.http import JsonResponse
 from rest_framework import status
@@ -31,13 +31,12 @@ class UserSaveView(APIView):
 
         if user_serializer.is_valid():
             user_serializer.save()
-            return Response(data='User saved: {}'.format(user_serializer.data), status=status.HTTP_201_CREATED)
-        logger.warning('Method: UserSaveView: User Not saved {}'.format(request.data))
-        return Response(data='User NOT saved: {}'.format(user_serializer.data), status=status.HTTP_400_BAD_REQUEST)
+            return Response(data="User saved: {}".format(user_serializer.data), status=status.HTTP_201_CREATED)
+        logger.warning("Method: UserSaveView: User Not saved {}".format(request.data))
+        return Response(data="User NOT saved: {}".format(user_serializer.data), status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserBlobView(APIView):
-
     @staticmethod
     @token_check
     def get(request):
@@ -46,29 +45,33 @@ class UserBlobView(APIView):
         users = User.objects.filter(time_added_to_database__gte=time_24_hours_ago, delete=False)
 
         for user in users:
-            list_for_csv.append({
-                'email': user.email,
-                'ubiquity_join_date': user.ubiquity_join_date,
-                'opt_out_timestamp': user.time_added_to_database
-            })
+            list_for_csv.append(
+                {
+                    "email": user.email,
+                    "ubiquity_join_date": user.ubiquity_join_date,
+                    "opt_out_timestamp": user.time_added_to_database,
+                }
+            )
 
         try:
             deleted_users_csv = write_to_csv(list_for_csv)
         except IndexError as e:
             return Response(
-                data='Method: UserBlobView.write_to_csv: {}'.format(e),
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                data="Method: UserBlobView.write_to_csv: {}".format(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
         try:
-            create_blob_from_csv(deleted_users_csv, file_name='consents', base_directory='barclays',
-                                 container=DELETED_UBIQUITY_USERS_CONTAINER)
+            create_blob_from_csv(
+                deleted_users_csv,
+                file_name="consents",
+                base_directory="barclays",
+                container=DELETED_UBIQUITY_USERS_CONTAINER,
+            )
         except (ResourceExistsError, ValueError) as e:
-            logger.exception(
-                'UserBlobView: Error saving to Blob storage - {} data - {}'.format(e, users))
+            logger.exception("UserBlobView: Error saving to Blob storage - {} data - {}".format(e, users))
             return Response(
-                data='Error saving to blob storage - {} data - {}'.format(e, users),
-                status=status.HTTP_400_BAD_REQUEST)
+                data="Error saving to blob storage - {} data - {}".format(e, users), status=status.HTTP_400_BAD_REQUEST
+            )
 
         for user in users:
             user.delete = True

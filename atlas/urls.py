@@ -15,19 +15,19 @@ Including another URLconf
 """
 from django.conf import settings
 from django.conf.urls import include
+from django.conf.urls.static import serve
 from django.contrib import admin
 from django.urls import path, re_path
-from django.conf.urls.static import serve
 
 from ubiquity_users.views import HealthCheck, ReadyzCheck
 
 urlpatterns = [
-    path('audit/admin/', admin.site.urls),
-    path('audit/transaction/', include('transactions.urls')),
-    path('audit/ubiquity_user/', include('ubiquity_users.urls')),
-    path('audit/membership/', include('membership.urls')),
-    path('healthz/', HealthCheck.as_view()),
-    path('livez/', HealthCheck.as_view()),
-    path('readyz/', ReadyzCheck.as_view()),
-    re_path(r'^audit/static/(?P<path>.*)$', serve, kwargs={'document_root': settings.STATIC_ROOT}),
+    path("audit/admin/", admin.site.urls),
+    path("audit/transaction/", include("transactions.urls")),
+    path("audit/ubiquity_user/", include("ubiquity_users.urls")),
+    path("audit/membership/", include("membership.urls")),
+    path("healthz/", HealthCheck.as_view()),
+    path("livez/", HealthCheck.as_view()),
+    path("readyz/", ReadyzCheck.as_view()),
+    re_path(r"^audit/static/(?P<path>.*)$", serve, kwargs={"document_root": settings.STATIC_ROOT}),
 ]

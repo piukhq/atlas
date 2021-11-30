@@ -6,13 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ubiquity_users', '0002_auto_20190213_1620'),
+        ("ubiquity_users", "0002_auto_20190213_1620"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='user',
-            name='time_added_to_database',
-            field=models.DateTimeField(auto_now_add=True, db_index=True, verbose_name='Opt out timestamp <br> Time added to database'),
+            model_name="user",
+            name="time_added_to_database",
+            field=models.DateTimeField(
+                auto_now_add=True, db_index=True, verbose_name="Opt out timestamp <br> Time added to database"
+            ),
         ),
     ]

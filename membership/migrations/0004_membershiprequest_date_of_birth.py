@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('membership', '0003_auto_20200902_1413'),
+        ("membership", "0003_auto_20200902_1413"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='membershiprequest',
-            name='date_of_birth',
+            model_name="membershiprequest",
+            name="date_of_birth",
             field=models.DateField(blank=True, null=True),
         ),
     ]

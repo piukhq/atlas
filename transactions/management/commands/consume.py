@@ -1,13 +1,12 @@
 import logging
 
-from django.core.management.base import BaseCommand
-from django.conf import settings
 import kombu
 import kombu.mixins
+from django.conf import settings
+from django.core.management.base import BaseCommand
 
 from prometheus.signals import transaction_fail, transaction_success
 from transactions import tasks
-
 
 logger = logging.getLogger(__name__)
 
