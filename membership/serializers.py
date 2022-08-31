@@ -29,6 +29,7 @@ class MembershipRequestSerializer(serializers.ModelSerializer):
             "record_uid",
             "title",
             "date_of_birth",
+            "request_url",
         ):
             instance_attr = getattr(instance, attribute)
             if not instance_attr:

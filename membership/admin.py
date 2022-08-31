@@ -12,7 +12,7 @@ class ResponseAdminInline(admin.TabularInline):
 class RequestAdmin(admin.ModelAdmin):
     inlines = (ResponseAdminInline,)
     readonly_fields = ("created_date",)
-    list_display = ("id", "email", "first_name", "last_name", "card_number", "message_uid")
+    list_display = ("id", "email", "first_name", "last_name", "card_number", "message_uid", "request_url")
     search_fields = (
         "id",
         "email",

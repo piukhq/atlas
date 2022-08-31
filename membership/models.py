@@ -26,6 +26,7 @@ class MembershipRequest(models.Model):
     integration_service = models.CharField(max_length=32, blank=True)
     channel = models.CharField(max_length=100, blank=True)
     payload = models.JSONField(blank=True)
+    request_url = models.CharField(max_length=300, blank=True)
 
     def __unicode__(self):
         return self.id
