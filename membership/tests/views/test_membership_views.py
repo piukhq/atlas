@@ -207,6 +207,26 @@ def test_audit_log_save_view(mock_membership_request_success, client, request_re
 @pytest.mark.django_db
 @mock.patch("membership.views.membership_request_success", autospec=True)
 @mock.patch("membership.views.SLUG_TO_CREDENTIAL_MAP", SLUG_TO_CREDENTIAL_MAP)
+def test_log_save_invalid_dob(mock_membership_request_success, client, request_response_data, membership_url):
+    # Change data of birth in request_response_date to an invalid format, as seen in wasabi responses
+    rrd = request_response_data
+    rrd["audit_logs"][0]["payload"]["dob"] = "1968-01-12T00:00:00"
+    rrd["audit_logs"][1]["payload"]["dob"] = "1968-01-12T00:00:00"
+    response = client.post(
+        path=membership_url,
+        data=rrd,
+        HTTP_AUTHORIZATION=ATLAS_SERVICE_AUTH_HEADER,
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_201_CREATED
+    assert mock_membership_request_success.send.called
+    assert mock_membership_request_success.send.call_count == 2
+
+
+@pytest.mark.django_db
+@mock.patch("membership.views.membership_request_success", autospec=True)
+@mock.patch("membership.views.SLUG_TO_CREDENTIAL_MAP", SLUG_TO_CREDENTIAL_MAP)
 def test_audit_log_save_response(
     mock_membership_request_success,
     client,

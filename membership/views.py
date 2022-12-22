@@ -2,6 +2,7 @@ import json
 import logging
 from datetime import datetime
 
+import arrow
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
@@ -96,6 +97,9 @@ class MembershipRequestView(APIView):
                     logger.exception(
                         f"Error caused by custom credential mapping function for {slug} - {mapped_key.__name__}"
                     )
+
+            if mapped_key == "date_of_birth":
+                value = arrow.get(value).format("YYYY-MM-DD")
 
             mapped_credentials[mapped_key] = value
 
