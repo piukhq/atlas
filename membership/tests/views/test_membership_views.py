@@ -208,13 +208,12 @@ def test_audit_log_save_view(mock_membership_request_success, client, request_re
 @mock.patch("membership.views.membership_request_success", autospec=True)
 @mock.patch("membership.views.SLUG_TO_CREDENTIAL_MAP", SLUG_TO_CREDENTIAL_MAP)
 def test_log_save_invalid_dob(mock_membership_request_success, client, request_response_data, membership_url):
-    # Change data of birth in request_response_date to an invalid format, as seen in wasabi responses
-    rrd = request_response_data
-    rrd["audit_logs"][0]["payload"]["dob"] = "1968-01-12T00:00:00"
-    rrd["audit_logs"][1]["payload"]["dob"] = "1968-01-12T00:00:00"
+    # Change date of birth in request_response_date to an invalid format, as seen in wasabi responses
+    request_response_data["audit_logs"][0]["payload"]["dob"] = "1968-01-12T00:00:00"
+    request_response_data["audit_logs"][1]["payload"]["dob"] = "1968-01-12T00:00:00"
     response = client.post(
         path=membership_url,
-        data=rrd,
+        data=request_response_data,
         HTTP_AUTHORIZATION=ATLAS_SERVICE_AUTH_HEADER,
         content_type="application/json",
     )
