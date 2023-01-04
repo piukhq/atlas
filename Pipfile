@@ -17,6 +17,7 @@ django-admin-rangefilter = "*"
 sentry-sdk = "*"
 gunicorn = "*"
 dj-database-url = "*"
+tzdata = "*"
 
 [dev-packages]
 flake8 = "*"
