@@ -230,7 +230,6 @@ class TestSaveEndpoint(APITestCase):
 
 
 class TestExportTransaction(APITestCase):
-
     # MER-645: the new-style transaction data from Harmonia
     def setUp(self):
         self.export_transaction_data = {
@@ -283,7 +282,6 @@ class TestExportTransaction(APITestCase):
 
 
 class TestTransactionTask(APITestCase):
-
     # MER-645: the new-style transaction data from Harmonia
     def setUp(self):
         settings.AMQP_DSN = "memory://"
