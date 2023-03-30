@@ -24,7 +24,6 @@ class TestUserSave(APITestCase):
         self.client = APIClient()
 
     def test_good_payload_saves_to_database(self):
-
         self.client.credentials(HTTP_AUTHORIZATION=self.auth_headers)
         resp = self.client.post(self.url, self.data, format="json")
 
@@ -33,7 +32,6 @@ class TestUserSave(APITestCase):
         self.assertEqual(User.objects.get().email, "ct@test.com")
 
     def test_invalid_payload_returns_400(self):
-
         self.client.credentials(HTTP_AUTHORIZATION=self.auth_headers)
         resp = self.client.post(self.url, self.invalid_data, format="json")
 
