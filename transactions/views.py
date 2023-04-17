@@ -28,7 +28,6 @@ class TransactionBlobView(APIView):
         scheme_slug = request.data["scheme_slug"]
 
         if start < end:
-
             try:  # Get transactions in a list of dicts so we can write them to csv
                 transactions = get_transactions(start, end, scheme_slug)
             except (ValueError, TypeError) as e:
