@@ -103,6 +103,20 @@ class MembershipRequestView(APIView):
 
             mapped_credentials[mapped_key] = value
 
+        if type(credentials["payload"]) == str:
+            credentials["payload"] = json.loads(credentials["payload"])
+        if credentials["payload"].get("jsonrpc"):
+            if credentials["audit_log_type"] == "REQUEST":
+                params = credentials["payload"]["params"]
+            else:
+                params = credentials["payload"]["result"]
+
+            for key, val in SLUG_TO_CREDENTIAL_MAP[slug][credentials["audit_log_type"]].items():
+                try:
+                    mapped_credentials[val] = params[key]
+                except IndexError:
+                    pass
+
         return mapped_credentials
 
     def process_response(self, log: dict, membership_request: MembershipRequest) -> dict:

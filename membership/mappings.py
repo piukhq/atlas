@@ -26,4 +26,5 @@ SLUG_TO_CREDENTIAL_MAP = {
         "MemberNumber": "card_number",
     },
     "squaremeal": {"MembershipNumber": "card_number"},
+    "the-works": {"REQUEST": {6: "email", 8: "first_name", 10: "last_name"}, "RESPONSE": {6: "card_number"}},
 }
