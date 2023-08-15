@@ -26,5 +26,5 @@ SLUG_TO_CREDENTIAL_MAP = {
         "MemberNumber": "card_number",
     },
     "squaremeal": {"MembershipNumber": "card_number"},
-    "itsu": {"MemberNumber": "card_number"},
+    "itsu": {"MemberNumber": "card_number", "externalLoyaltyMemberNumber": "card_number"},
 }
