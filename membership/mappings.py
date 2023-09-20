@@ -27,5 +27,5 @@ SLUG_TO_CREDENTIAL_MAP = {
     },
     "squaremeal": {"MembershipNumber": "card_number"},
     "itsu": {"MemberNumber": "card_number", "externalLoyaltyMemberNumber": "card_number"},
-    "mixr": {"MemberNumber": "card_number", "Email": "email"}
+    "mixr": {"MemberNumber": "card_number", "Email": "email"},
 }
