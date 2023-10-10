@@ -52,6 +52,10 @@ INSTALLED_APPS = [
     "transactions",
     "ubiquity_users",
     "rangefilter",
+    "django_otp",
+    "django_otp.plugins.otp_static",
+    "django_otp.plugins.otp_totp",
+    "two_factor",
 ]
 
 MIDDLEWARE = [
@@ -64,6 +68,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_prometheus.middleware.PrometheusAfterMiddleware",
+    "django_otp.middleware.OTPMiddleware",
 ]
 
 ROOT_URLCONF = "atlas.urls"
@@ -238,3 +243,4 @@ PROMETHEUS_LATENCY_BUCKETS = (
 PROMETHEUS_PUSH_GATEWAY = "http://localhost:9100"
 PROMETHEUS_JOB = "atlas"
 PUSH_PROMETHEUS_METRICS = env_var("PUSH_PROMETHEUS_METRICS", True)
+LOGIN_URL = "two_factor:login"
