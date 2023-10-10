@@ -18,6 +18,7 @@ from django.conf.urls import include
 from django.conf.urls.static import serve
 from django.contrib import admin
 from django.urls import path, re_path
+from two_factor.urls import urlpatterns as tf_urls
 
 from ubiquity_users.views import HealthCheck, ReadyzCheck
 
@@ -29,5 +30,6 @@ urlpatterns = [
     path("healthz/", HealthCheck.as_view()),
     path("livez/", HealthCheck.as_view()),
     path("readyz/", ReadyzCheck.as_view()),
+    path("", include(tf_urls)),
     re_path(r"^audit/static/(?P<path>.*)$", serve, kwargs={"document_root": settings.STATIC_ROOT}),
 ]

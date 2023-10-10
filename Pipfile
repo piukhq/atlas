@@ -18,6 +18,7 @@ sentry-sdk = "*"
 gunicorn = "*"
 dj-database-url = "*"
 tzdata = "*"
+django-two-factor-auth = {extras = ["phonenumbers"], version = "*"}
 
 [dev-packages]
 flake8 = "*"
