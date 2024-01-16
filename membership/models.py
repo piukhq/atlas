@@ -52,7 +52,9 @@ class UserChannelIdentifier(models.Model):
     barcode = models.TextField(blank=True, null=True)
     alt_main_answer = models.TextField(blank=True, null=True)
     merchant_identifier = models.TextField(blank=True, null=True)
-    originating_journey = models.IntegerField(help_text="Journey type ID (Join = 0, Link = 1, Add = 2, Update = 3, Register = 4, Unknown = 5)")
+    originating_journey = models.IntegerField(
+        help_text="Journey type ID (Join = 0, Link = 1, Add = 2, Update = 3, Register = 4, Unknown = 5)"
+    )
     scheme_id = models.IntegerField()
 
     def __str__(self):

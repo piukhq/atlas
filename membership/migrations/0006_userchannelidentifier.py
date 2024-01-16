@@ -38,15 +38,11 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "join_date",
-                    models.DateTimeField(
-                        help_text="Scheme account join date (if applicable)", null=True
-                    ),
+                    models.DateTimeField(help_text="Scheme account join date (if applicable)", null=True),
                 ),
                 (
                     "link_date",
-                    models.DateTimeField(
-                        help_text="Scheme account link date (if applicable)", null=True
-                    ),
+                    models.DateTimeField(help_text="Scheme account link date (if applicable)", null=True),
                 ),
                 ("card_number", models.TextField(blank=True, null=True)),
                 ("barcode", models.TextField(blank=True, null=True)),
