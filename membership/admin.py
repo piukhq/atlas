@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from membership.models import MembershipRequest, MembershipResponse
+from membership.models import MembershipRequest, MembershipResponse, UserChannelIdentifier
 
 
 class ResponseAdminInline(admin.TabularInline):
@@ -42,3 +42,17 @@ class ResponseAdmin(admin.ModelAdmin):
         "request__card_number",
     )
     ordering = ("-created_date",)
+
+
+@admin.register(UserChannelIdentifier)
+class UserChannelIdentifierAdmin(admin.ModelAdmin):
+    list_display = ("id", "user_id", "bundle_id", "scheme_account_id", "scheme_id")
+    readonly_fields = [field.name for field in UserChannelIdentifier._meta.get_fields()]
+    search_fields = ("user_id", "scheme_account_id")
+    list_filter = ("bundle_id",)
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
