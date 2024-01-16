@@ -38,18 +38,22 @@ class MembershipResponse(models.Model):
     timestamp = models.DateTimeField(blank=True)
     status_code = models.IntegerField(blank=True)
 
-class BarclaysIdentifiers(models.Model):
-    user_id = models.CharField(max_length=250)
-    date_joined = models.DateField()
-    bundle_id = models.CharField(max_length=250, blank=True)
-    created_link = models.CharField(max_length=250, blank=True)
-    scheme_account_id = models.CharField(max_length=250)
-    created_scheme_account = models.CharField(max_length=250)
-    join_date = models.DateField(blank=True)
-    link_date = models.DateField(blank=True)
-    card_number = models.CharField(max_length=250, blank=True)
-    barcode = models.CharField(max_length=250, blank=True)
-    alt_main_answer = models.CharField(max_length=250, blank=True)
-    merchant_identifier = models.CharField(max_length=250, blank=True)
-    originating_journey = models.CharField(max_length=250)
-    scheme_id = models.CharField(max_length=250)
+
+class UserChannelIdentifier(models.Model):
+    user_id = models.IntegerField()
+    date_joined = models.DateTimeField(help_text="User created date")
+    bundle_id = models.TextField(help_text="Channel identifier")
+    created_link = models.DateTimeField(null=True, help_text="Creation date of user to scheme account association")
+    scheme_account_id = models.IntegerField()
+    created_scheme_account = models.DateTimeField(help_text="Scheme account created date")
+    join_date = models.DateTimeField(null=True, help_text="Scheme account join date (if applicable)")
+    link_date = models.DateTimeField(null=True, help_text="Scheme account link date (if applicable)")
+    card_number = models.TextField(blank=True, null=True)
+    barcode = models.TextField(blank=True, null=True)
+    alt_main_answer = models.TextField(blank=True, null=True)
+    merchant_identifier = models.TextField(blank=True, null=True)
+    originating_journey = models.IntegerField(help_text="Journey type ID (Join = 0, Link = 1, Add = 2, Update = 3, Register = 4, Unknown = 5)")
+    scheme_id = models.IntegerField()
+
+    def __str__(self):
+        return f"UserChannelIdentifier - User {self.user_id} in channel {self.bundle_id}"
